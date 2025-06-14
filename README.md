@@ -15,28 +15,16 @@ pip install networkx matplotlib plotly neo4j gitpython pandas scipy aiofiles
 ```
 
 ### 2. Neo4j Database
-You have several options for Neo4j:
-
-#### Option A: Neo4j Desktop (Recommended)
-1. Download Neo4j Desktop from https://neo4j.com/download/
-2. Install and create a new database
-3. Set password (remember this for the scripts)
-4. Start the database
-5. Note the connection details (usually `bolt://localhost:7687`)
-
-#### Option B: Docker
+OK, this needs a bit of a clean-up... To make the Neo4J DB you need Docker (go Google how to do that)
+Assuming you have Docker setup then run
 ```bash
-docker run -d \
-    --name neo4j-aaps \
-    -p 7474:7474 -p 7687:7687 \
-    -e NEO4J_AUTH=neo4j/your_password_here \
-    neo4j:latest
+python docker_neo4j_setup.py
 ```
-
-#### Option C: Neo4j AuraDB (Cloud)
-1. Go to https://neo4j.com/cloud/aura/
-2. Create a free instance
-3. Note the connection string and credentials
+This will complain that it failed to start so run
+```bash
+python neo4j_quick_fix.py 
+```
+Sorry... Haven't merged yet
 
 ## Quick Start
 
@@ -47,6 +35,7 @@ Save the provided Python scripts:
 
 ### 2. Configure Connection
 Edit the connection details in both scripts:
+(it will all work fine if you just leave the password as "password" so this is optional)
 ```python
 NEO4J_URI = "bolt://localhost:7687"  # Your Neo4j URI
 NEO4J_USER = "neo4j"                 # Your username

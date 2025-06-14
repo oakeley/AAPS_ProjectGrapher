@@ -1,0 +1,60 @@
+
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:5.15-enterprise
+    container_name: neo4j-aaps
+    restart: unless-stopped
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    volumes:
+      - ./neo4j_data:/data
+      - ./neo4j_logs:/logs
+      - ./neo4j_config:/var/lib/neo4j/conf
+    environment:
+      # Authentication
+      - NEO4J_AUTH=neo4j/password
+      
+      # Memory Settings (matching our config)
+      - NEO4J_server_memory_heap_initial__size=32g
+      - NEO4J_server_memory_heap_max__size=64g
+      - NEO4J_server_memory_pagecache_size=200g
+      - NEO4J_server_memory_transaction_total_max=100g
+      
+      # JVM Tuning for Large Heap
+      - NEO4J_server_jvm_additional=-XX:+UseG1GC
+      - NEO4J_server_jvm_additional=-XX:+UnlockExperimentalVMOptions
+      - NEO4J_server_jvm_additional=-XX:G1HeapRegionSize=32m
+      - NEO4J_server_jvm_additional=-XX:MaxGCPauseMillis=200
+      - NEO4J_server_jvm_additional=-XX:+ParallelRefProcEnabled
+      - NEO4J_server_jvm_additional=-XX:+UseStringDeduplication
+      - NEO4J_server_jvm_additional=-XX:+DisableExplicitGC
+      
+      # Performance Settings
+      - NEO4J_db_transaction_timeout=600s
+      - NEO4J_dbms_query_cache__size=10000
+      - NEO4J_cypher_runtime=slotted
+      
+      # Accept License (for Enterprise features)
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      
+      # Disable authentication for development (optional)
+      # - NEO4J_AUTH=none
+    
+    # Resource limits for Docker
+    deploy:
+      resources:
+        limits:
+          memory: 320g  # Leave some RAM for the OS
+        reservations:
+          memory: 300g
+    
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s

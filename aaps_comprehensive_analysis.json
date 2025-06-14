@@ -1,0 +1,1492 @@
+{
+  "analysis_metadata": {
+    "total_analysis_time_seconds": 172.2734670639038,
+    "files_processed": 3214,
+    "workers_used": 48,
+    "memory_limit_gb": 300.0,
+    "neo4j_batch_size": 10000
+  },
+  "project_summary": {
+    "total_files": 3214,
+    "java_files": 202,
+    "kotlin_files": 3012,
+    "total_functions": 14209,
+    "total_classes": 4367,
+    "total_lines_of_code": 313337,
+    "total_imports": 28817,
+    "packages": 576
+  },
+  "network_analysis": {
+    "nodes": 3107,
+    "edges": 307181,
+    "density": 0.031831099871900914,
+    "average_clustering": 0.4600266703527944,
+    "number_connected_components": 597
+  },
+  "top_files": {
+    "by_importance": [
+      {
+        "name": "Parser.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "score": 363.0642676646605,
+        "type": "kotlin"
+      },
+      {
+        "name": "Pump.kt",
+        "package": "info.nightscout.comboctl.main",
+        "score": 344.4011547059697,
+        "type": "kotlin"
+      },
+      {
+        "name": "PersistenceLayerImpl.kt",
+        "package": "app.aaps.database.persistence",
+        "score": 272.1341307428163,
+        "type": "kotlin"
+      },
+      {
+        "name": "EventData.kt",
+        "package": "app.aaps.core.interfaces.rx.weardata",
+        "score": 216.624835274905,
+        "type": "kotlin"
+      },
+      {
+        "name": "ApplicationLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "score": 214.96220376324789,
+        "type": "kotlin"
+      },
+      {
+        "name": "SmsCommunicatorPlugin.kt",
+        "package": "app.aaps.plugins.main.general.smsCommunicator",
+        "score": 205.45483254470128,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataHandlerMobile.kt",
+        "package": "app.aaps.plugins.sync.wear.wearintegration",
+        "score": 201.18209157552548,
+        "type": "kotlin"
+      },
+      {
+        "name": "ComboV2Plugin.kt",
+        "package": "info.nightscout.pump.combov2",
+        "score": 199.57561225486427,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashPumpPlugin.kt",
+        "package": "app.aaps.pump.omnipod.dash",
+        "score": 180.88927041317118,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodErosPumpPlugin.java",
+        "package": "app.aaps.pump.omnipod.eros",
+        "score": 175.63821067554187,
+        "type": "java"
+      },
+      {
+        "name": "InsightPlugin.kt",
+        "package": "app.aaps.pump.insight",
+        "score": 172.66519324231535,
+        "type": "kotlin"
+      },
+      {
+        "name": "CustomWatchface.kt",
+        "package": "app.aaps.wear.watchfaces",
+        "score": 166.49072083018777,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumService.kt",
+        "package": "app.aaps.pump.medtrum.services",
+        "score": 160.4732908642673,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicPumpPlugin.kt",
+        "package": "app.aaps.pump.medtronic",
+        "score": 142.94830494821963,
+        "type": "kotlin"
+      },
+      {
+        "name": "OverviewFragment.kt",
+        "package": "app.aaps.plugins.main.general.overview",
+        "score": 141.8748505240675,
+        "type": "kotlin"
+      },
+      {
+        "name": "LoopPlugin.kt",
+        "package": "app.aaps.plugins.aps.loop",
+        "score": 137.88387559889577,
+        "type": "kotlin"
+      },
+      {
+        "name": "AapsOmnipodErosManager.java",
+        "package": "app.aaps.pump.omnipod.eros.manager",
+        "score": 134.84189731643437,
+        "type": "java"
+      },
+      {
+        "name": "ErosPodStateManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "score": 124.40859238850078,
+        "type": "java"
+      },
+      {
+        "name": "AppRepository.kt",
+        "package": "app.aaps.database",
+        "score": 124.3428184905348,
+        "type": "kotlin"
+      },
+      {
+        "name": "PumpIO.kt",
+        "package": "info.nightscout.comboctl.base",
+        "score": 123.09502609625497,
+        "type": "kotlin"
+      },
+      {
+        "name": "OpenAPSAutoISFPlugin.kt",
+        "package": "app.aaps.plugins.aps.openAPSAutoISF",
+        "score": 120.05743230920513,
+        "type": "kotlin"
+      },
+      {
+        "name": "NSClientV3Plugin.kt",
+        "package": "app.aaps.plugins.sync.nsclientV3",
+        "score": 117.57238278703036,
+        "type": "kotlin"
+      },
+      {
+        "name": "TransportLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "score": 115.35910282972404,
+        "type": "kotlin"
+      },
+      {
+        "name": "EopatchPumpPlugin.kt",
+        "package": "app.aaps.pump.eopatch",
+        "score": 113.34928189407859,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashManagerImpl.kt",
+        "package": "app.aaps.pump.omnipod.dash.driver",
+        "score": 112.17629792291763,
+        "type": "kotlin"
+      },
+      {
+        "name": "RTNavigation.kt",
+        "package": "info.nightscout.comboctl.main",
+        "score": 111.69655744466391,
+        "type": "kotlin"
+      },
+      {
+        "name": "EquilPumpPlugin.kt",
+        "package": "app.aaps.pump.equil",
+        "score": 109.24730167504282,
+        "type": "kotlin"
+      },
+      {
+        "name": "IobCobCalculatorPlugin.kt",
+        "package": "app.aaps.plugins.main.iob.iobCobCalculator",
+        "score": 107.59506528788904,
+        "type": "kotlin"
+      },
+      {
+        "name": "DiaconnG8Service.kt",
+        "package": "app.aaps.pump.diaconn.service",
+        "score": 107.18336053641428,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRSPlugin.kt",
+        "package": "app.aaps.pump.danars",
+        "score": 105.52487243298755,
+        "type": "kotlin"
+      },
+      {
+        "name": "EquilManager.kt",
+        "package": "app.aaps.pump.equil.manager",
+        "score": 104.6190342500544,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "score": 103.55116242455945,
+        "type": "java"
+      },
+      {
+        "name": "Pattern.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "score": 103.11237473990579,
+        "type": "kotlin"
+      },
+      {
+        "name": "PumpManager.kt",
+        "package": "info.nightscout.comboctl.main",
+        "score": 102.837768479516,
+        "type": "kotlin"
+      },
+      {
+        "name": "OpenHumansUploaderPlugin.kt",
+        "package": "app.aaps.plugins.sync.openhumans",
+        "score": 102.45521137407422,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRSService.kt",
+        "package": "app.aaps.pump.danars.services",
+        "score": 100.81273107651666,
+        "type": "kotlin"
+      },
+      {
+        "name": "NSClientService.kt",
+        "package": "app.aaps.plugins.sync.nsclient.services",
+        "score": 100.273795763939,
+        "type": "kotlin"
+      },
+      {
+        "name": "StoreDataForDbImpl.kt",
+        "package": "app.aaps.plugins.sync.nsShared",
+        "score": 100.15051862490752,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicHistoryData.kt",
+        "package": "app.aaps.pump.medtronic.data",
+        "score": 99.7229512859022,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightConnectionService.kt",
+        "package": "app.aaps.pump.insight.connection_service",
+        "score": 99.09613536150164,
+        "type": "kotlin"
+      },
+      {
+        "name": "AutomationPlugin.kt",
+        "package": "app.aaps.plugins.automation",
+        "score": 97.46664553455341,
+        "type": "kotlin"
+      },
+      {
+        "name": "ENPlugin.kt",
+        "package": "app.aaps.plugins.aps.EN",
+        "score": 95.2581396288922,
+        "type": "kotlin"
+      },
+      {
+        "name": "OpenAPSSMBPlugin.kt",
+        "package": "app.aaps.plugins.aps.openAPSSMB",
+        "score": 95.23770654278132,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumPlugin.kt",
+        "package": "app.aaps.pump.medtrum",
+        "score": 95.14275828553498,
+        "type": "kotlin"
+      },
+      {
+        "name": "BigLogInquireResponsePacket.kt",
+        "package": "app.aaps.pump.diaconn.packet",
+        "score": 94.29682447818128,
+        "type": "kotlin"
+      },
+      {
+        "name": "VirtualPumpPlugin.kt",
+        "package": "app.aaps.pump.virtual",
+        "score": 92.63838712448197,
+        "type": "kotlin"
+      },
+      {
+        "name": "DiaconnG8Plugin.kt",
+        "package": "app.aaps.pump.diaconn",
+        "score": 91.0614949740601,
+        "type": "kotlin"
+      },
+      {
+        "name": "BLEComm.kt",
+        "package": "app.aaps.pump.danars.services",
+        "score": 90.6274699561317,
+        "type": "kotlin"
+      },
+      {
+        "name": "PatchManagerExecutor.kt",
+        "package": "app.aaps.pump.eopatch.ble",
+        "score": 86.72320933913733,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRv2ExecutionService.kt",
+        "package": "app.aaps.pump.danarv2.services",
+        "score": 84.76055220769973,
+        "type": "kotlin"
+      }
+    ],
+    "by_complexity": [
+      {
+        "name": "Pump.kt",
+        "package": "info.nightscout.comboctl.main",
+        "score": 541.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "SmsCommunicatorPluginTest.kt",
+        "package": "app.aaps.plugins.main.general.smsCommunicator",
+        "score": 365.8,
+        "type": "kotlin"
+      },
+      {
+        "name": "PumpIO.kt",
+        "package": "info.nightscout.comboctl.base",
+        "score": 364.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightPlugin.kt",
+        "package": "app.aaps.pump.insight",
+        "score": 356.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "ComboV2Plugin.kt",
+        "package": "info.nightscout.pump.combov2",
+        "score": 338.0,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataHandlerMobile.kt",
+        "package": "app.aaps.plugins.sync.wear.wearintegration",
+        "score": 336.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "DetermineBasalSMB.kt",
+        "package": "app.aaps.plugins.aps.openAPSSMB",
+        "score": 321.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "DetermineBasalEN.kt",
+        "package": "app.aaps.plugins.aps.EN",
+        "score": 320.0,
+        "type": "kotlin"
+      },
+      {
+        "name": "DetermineBasalAutoISF.kt",
+        "package": "app.aaps.plugins.aps.openAPSAutoISF",
+        "score": 318.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "PersistenceLayerImpl.kt",
+        "package": "app.aaps.database.persistence",
+        "score": 303.0,
+        "type": "kotlin"
+      },
+      {
+        "name": "SmsCommunicatorPlugin.kt",
+        "package": "app.aaps.plugins.main.general.smsCommunicator",
+        "score": 284.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicHistoryData.kt",
+        "package": "app.aaps.pump.medtronic.data",
+        "score": 277.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "Parser.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "score": 237.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicPumpPlugin.kt",
+        "package": "app.aaps.pump.medtronic",
+        "score": 233.2,
+        "type": "kotlin"
+      },
+      {
+        "name": "CustomWatchface.kt",
+        "package": "app.aaps.wear.watchfaces",
+        "score": 228.9,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashPumpPlugin.kt",
+        "package": "app.aaps.pump.omnipod.dash",
+        "score": 222.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodErosPumpPlugin.java",
+        "package": "app.aaps.pump.omnipod.eros",
+        "score": 215.5,
+        "type": "java"
+      },
+      {
+        "name": "TransportLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "score": 210.6,
+        "type": "kotlin"
+      },
+      {
+        "name": "OverviewFragment.kt",
+        "package": "app.aaps.plugins.main.general.overview",
+        "score": 209.4,
+        "type": "kotlin"
+      },
+      {
+        "name": "ApplicationLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "score": 205.9,
+        "type": "kotlin"
+      },
+      {
+        "name": "RTNavigation.kt",
+        "package": "info.nightscout.comboctl.main",
+        "score": 203.4,
+        "type": "kotlin"
+      },
+      {
+        "name": "AapsOmnipodErosManager.java",
+        "package": "app.aaps.pump.omnipod.eros.manager",
+        "score": 193.8,
+        "type": "java"
+      },
+      {
+        "name": "OpenAPSAutoISFPlugin.kt",
+        "package": "app.aaps.plugins.aps.openAPSAutoISF",
+        "score": 188.10000000000002,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumService.kt",
+        "package": "app.aaps.pump.medtrum.services",
+        "score": 186.7,
+        "type": "kotlin"
+      },
+      {
+        "name": "GridLabelRenderer.java",
+        "package": "com.jjoe64.graphview",
+        "score": 176.9,
+        "type": "java"
+      },
+      {
+        "name": "ParserTest.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "score": 171.20000000000002,
+        "type": "kotlin"
+      },
+      {
+        "name": "AppRepository.kt",
+        "package": "app.aaps.database",
+        "score": 163.9,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataSyncSelectorV1.kt",
+        "package": "app.aaps.plugins.sync.nsclient",
+        "score": 159.60000000000002,
+        "type": "kotlin"
+      },
+      {
+        "name": "BLEComm.kt",
+        "package": "app.aaps.pump.danars.services",
+        "score": 159.4,
+        "type": "kotlin"
+      },
+      {
+        "name": "LoopPlugin.kt",
+        "package": "app.aaps.plugins.aps.loop",
+        "score": 155.60000000000002,
+        "type": "kotlin"
+      },
+      {
+        "name": "NSClientV3Plugin.kt",
+        "package": "app.aaps.plugins.sync.nsclientV3",
+        "score": 152.9,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataSyncSelectorV3.kt",
+        "package": "app.aaps.plugins.sync.nsclientV3",
+        "score": 148.7,
+        "type": "kotlin"
+      },
+      {
+        "name": "NSClientService.kt",
+        "package": "app.aaps.plugins.sync.nsclient.services",
+        "score": 146.2,
+        "type": "kotlin"
+      },
+      {
+        "name": "DiaconnG8Service.kt",
+        "package": "app.aaps.pump.diaconn.service",
+        "score": 144.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicCommunicationManager.kt",
+        "package": "app.aaps.pump.medtronic.comm",
+        "score": 142.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "score": 137.1,
+        "type": "java"
+      },
+      {
+        "name": "ReplayApsResultsTest.kt",
+        "package": "app.aaps",
+        "score": 135.7,
+        "type": "kotlin"
+      },
+      {
+        "name": "Viewport.java",
+        "package": "com.jjoe64.graphview",
+        "score": 131.6,
+        "type": "java"
+      },
+      {
+        "name": "AutosensDataStoreTest.kt",
+        "package": "app.aaps.plugins.main.iob",
+        "score": 131.1,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightConnectionService.kt",
+        "package": "app.aaps.pump.insight.connection_service",
+        "score": 130.7,
+        "type": "kotlin"
+      },
+      {
+        "name": "BundleMock.kt",
+        "package": "app.aaps.shared.tests",
+        "score": 129.0,
+        "type": "kotlin"
+      },
+      {
+        "name": "AndroidBluetoothInterface.kt",
+        "package": "info.nightscout.comboctl.android",
+        "score": 128.3,
+        "type": "kotlin"
+      },
+      {
+        "name": "BigLogInquireResponsePacket.kt",
+        "package": "app.aaps.pump.diaconn.packet",
+        "score": 127.0,
+        "type": "kotlin"
+      },
+      {
+        "name": "DetermineBasalAMA.kt",
+        "package": "app.aaps.plugins.aps.openAPSAMA",
+        "score": 125.1,
+        "type": "kotlin"
+      },
+      {
+        "name": "CommandQueueImplementation.kt",
+        "package": "app.aaps.implementation.queue",
+        "score": 121.6,
+        "type": "kotlin"
+      },
+      {
+        "name": "ErosPodStateManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "score": 121.10000000000001,
+        "type": "java"
+      },
+      {
+        "name": "AutotunePrep.kt",
+        "package": "app.aaps.plugins.aps.autotune",
+        "score": 121.0,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataSyncSelectorXdripImpl.kt",
+        "package": "app.aaps.plugins.sync.xdrip",
+        "score": 120.5,
+        "type": "kotlin"
+      },
+      {
+        "name": "IobCobCalculatorPlugin.kt",
+        "package": "app.aaps.plugins.main.iob.iobCobCalculator",
+        "score": 119.1,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRSPlugin.kt",
+        "package": "app.aaps.pump.danars",
+        "score": 115.5,
+        "type": "kotlin"
+      }
+    ],
+    "by_loc": [
+      {
+        "name": "TestDisplayFrames.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "loc": 12369,
+        "type": "kotlin"
+      },
+      {
+        "name": "Pump.kt",
+        "package": "info.nightscout.comboctl.main",
+        "loc": 3587,
+        "type": "kotlin"
+      },
+      {
+        "name": "ComboV2Plugin.kt",
+        "package": "info.nightscout.pump.combov2",
+        "loc": 2443,
+        "type": "kotlin"
+      },
+      {
+        "name": "PumpIO.kt",
+        "package": "info.nightscout.comboctl.base",
+        "loc": 2082,
+        "type": "kotlin"
+      },
+      {
+        "name": "Pattern.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "loc": 2043,
+        "type": "kotlin"
+      },
+      {
+        "name": "ParserTest.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "loc": 1925,
+        "type": "kotlin"
+      },
+      {
+        "name": "ApplicationLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "loc": 1879,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataHandlerMobile.kt",
+        "package": "app.aaps.plugins.sync.wear.wearintegration",
+        "loc": 1855,
+        "type": "kotlin"
+      },
+      {
+        "name": "Parser.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "loc": 1819,
+        "type": "kotlin"
+      },
+      {
+        "name": "PersistenceLayerImpl.kt",
+        "package": "app.aaps.database.persistence",
+        "loc": 1803,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashPumpPlugin.kt",
+        "package": "app.aaps.pump.omnipod.dash",
+        "loc": 1589,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightPlugin.kt",
+        "package": "app.aaps.pump.insight",
+        "loc": 1588,
+        "type": "kotlin"
+      },
+      {
+        "name": "AutosensDataStoreTest.kt",
+        "package": "app.aaps.plugins.main.iob",
+        "loc": 1528,
+        "type": "kotlin"
+      },
+      {
+        "name": "GridLabelRenderer.java",
+        "package": "com.jjoe64.graphview",
+        "loc": 1459,
+        "type": "java"
+      },
+      {
+        "name": "MedtronicHistoryData.kt",
+        "package": "app.aaps.pump.medtronic.data",
+        "loc": 1439,
+        "type": "kotlin"
+      },
+      {
+        "name": "PersistenceLayer.kt",
+        "package": "app.aaps.core.interfaces.db",
+        "loc": 1386,
+        "type": "kotlin"
+      },
+      {
+        "name": "SmsCommunicatorPlugin.kt",
+        "package": "app.aaps.plugins.main.general.smsCommunicator",
+        "loc": 1316,
+        "type": "kotlin"
+      },
+      {
+        "name": "TransportLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "loc": 1260,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicPumpPlugin.kt",
+        "package": "app.aaps.pump.medtronic",
+        "loc": 1245,
+        "type": "kotlin"
+      },
+      {
+        "name": "OverviewFragment.kt",
+        "package": "app.aaps.plugins.main.general.overview",
+        "loc": 1241,
+        "type": "kotlin"
+      },
+      {
+        "name": "SmsCommunicatorPluginTest.kt",
+        "package": "app.aaps.plugins.main.general.smsCommunicator",
+        "loc": 1206,
+        "type": "kotlin"
+      },
+      {
+        "name": "CustomWatchface.kt",
+        "package": "app.aaps.wear.watchfaces",
+        "loc": 1179,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumService.kt",
+        "package": "app.aaps.pump.medtrum.services",
+        "loc": 1162,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodErosPumpPlugin.java",
+        "package": "app.aaps.pump.omnipod.eros",
+        "loc": 1159,
+        "type": "java"
+      },
+      {
+        "name": "DetermineBasalAutoISF.kt",
+        "package": "app.aaps.plugins.aps.openAPSAutoISF",
+        "loc": 1156,
+        "type": "kotlin"
+      },
+      {
+        "name": "RTNavigation.kt",
+        "package": "info.nightscout.comboctl.main",
+        "loc": 1156,
+        "type": "kotlin"
+      },
+      {
+        "name": "DetermineBasalSMB.kt",
+        "package": "app.aaps.plugins.aps.openAPSSMB",
+        "loc": 1154,
+        "type": "kotlin"
+      },
+      {
+        "name": "DetermineBasalEN.kt",
+        "package": "app.aaps.plugins.aps.EN",
+        "loc": 1151,
+        "type": "kotlin"
+      },
+      {
+        "name": "ErosPodStateManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "loc": 1133,
+        "type": "java"
+      },
+      {
+        "name": "OpenAPSAutoISFPlugin.kt",
+        "package": "app.aaps.plugins.aps.openAPSAutoISF",
+        "loc": 1019,
+        "type": "kotlin"
+      },
+      {
+        "name": "AapsOmnipodErosManager.java",
+        "package": "app.aaps.pump.omnipod.eros.manager",
+        "loc": 1015,
+        "type": "java"
+      },
+      {
+        "name": "Viewport.java",
+        "package": "com.jjoe64.graphview",
+        "loc": 1008,
+        "type": "java"
+      },
+      {
+        "name": "BigLogInquireResponsePacket.kt",
+        "package": "app.aaps.pump.diaconn.packet",
+        "loc": 1002,
+        "type": "kotlin"
+      },
+      {
+        "name": "RTNavigationTest.kt",
+        "package": "info.nightscout.comboctl.main",
+        "loc": 1001,
+        "type": "kotlin"
+      },
+      {
+        "name": "NSClientV3Plugin.kt",
+        "package": "app.aaps.plugins.sync.nsclientV3",
+        "loc": 894,
+        "type": "kotlin"
+      },
+      {
+        "name": "BLEComm.kt",
+        "package": "app.aaps.pump.danars.services",
+        "loc": 875,
+        "type": "kotlin"
+      },
+      {
+        "name": "LoopPlugin.kt",
+        "package": "app.aaps.plugins.aps.loop",
+        "loc": 856,
+        "type": "kotlin"
+      },
+      {
+        "name": "EopatchViewModel.kt",
+        "package": "app.aaps.pump.eopatch.ui.viewmodel",
+        "loc": 846,
+        "type": "kotlin"
+      },
+      {
+        "name": "EquilManager.kt",
+        "package": "app.aaps.pump.equil.manager",
+        "loc": 842,
+        "type": "kotlin"
+      },
+      {
+        "name": "ReplayApsResultsTest.kt",
+        "package": "app.aaps",
+        "loc": 818,
+        "type": "kotlin"
+      },
+      {
+        "name": "AppRepository.kt",
+        "package": "app.aaps.database",
+        "loc": 806,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataSyncSelectorV1.kt",
+        "package": "app.aaps.plugins.sync.nsclient",
+        "loc": 806,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashOverviewFragment.kt",
+        "package": "app.aaps.pump.omnipod.dash.ui",
+        "loc": 802,
+        "type": "kotlin"
+      },
+      {
+        "name": "DiaconnG8Service.kt",
+        "package": "app.aaps.pump.diaconn.service",
+        "loc": 795,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashManagerImpl.kt",
+        "package": "app.aaps.pump.omnipod.dash.driver",
+        "loc": 790,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodDashPodStateManagerImpl.kt",
+        "package": "app.aaps.pump.omnipod.dash.driver.pod.state",
+        "loc": 785,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumPumpTest.kt",
+        "package": "app.aaps.pump.medtrum",
+        "loc": 750,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightConnectionService.kt",
+        "package": "app.aaps.pump.insight.connection_service",
+        "loc": 748,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodErosOverviewFragment.kt",
+        "package": "app.aaps.pump.omnipod.eros.ui",
+        "loc": 739,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicCommunicationManager.kt",
+        "package": "app.aaps.pump.medtronic.comm",
+        "loc": 739,
+        "type": "kotlin"
+      }
+    ],
+    "by_functions": [
+      {
+        "name": "PersistenceLayer.kt",
+        "package": "app.aaps.core.interfaces.db",
+        "functions": 172,
+        "type": "kotlin"
+      },
+      {
+        "name": "PersistenceLayerImpl.kt",
+        "package": "app.aaps.database.persistence",
+        "functions": 172,
+        "type": "kotlin"
+      },
+      {
+        "name": "ErosPodStateManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "functions": 117,
+        "type": "java"
+      },
+      {
+        "name": "AppRepository.kt",
+        "package": "app.aaps.database",
+        "functions": 104,
+        "type": "kotlin"
+      },
+      {
+        "name": "DiaconnG8PacketModule.kt",
+        "package": "app.aaps.pump.diaconn.di",
+        "functions": 73,
+        "type": "kotlin"
+      },
+      {
+        "name": "GridLabelRenderer.java",
+        "package": "com.jjoe64.graphview",
+        "functions": 72,
+        "type": "java"
+      },
+      {
+        "name": "OmnipodDashPumpPlugin.kt",
+        "package": "app.aaps.pump.omnipod.dash",
+        "functions": 69,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightPlugin.kt",
+        "package": "app.aaps.pump.insight",
+        "functions": 69,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodErosPumpPlugin.java",
+        "package": "app.aaps.pump.omnipod.eros",
+        "functions": 69,
+        "type": "java"
+      },
+      {
+        "name": "PluginsListModule.kt",
+        "package": "app.aaps.di",
+        "functions": 68,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRCommModule.kt",
+        "package": "app.aaps.pump.danar.di",
+        "functions": 66,
+        "type": "kotlin"
+      },
+      {
+        "name": "CustomWatchface.kt",
+        "package": "app.aaps.wear.watchfaces",
+        "functions": 66,
+        "type": "kotlin"
+      },
+      {
+        "name": "ComboV2Plugin.kt",
+        "package": "info.nightscout.pump.combov2",
+        "functions": 62,
+        "type": "kotlin"
+      },
+      {
+        "name": "AapsOmnipodErosManager.java",
+        "package": "app.aaps.pump.omnipod.eros.manager",
+        "functions": 58,
+        "type": "java"
+      },
+      {
+        "name": "AutomationModule.kt",
+        "package": "app.aaps.plugins.automation.di",
+        "functions": 57,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRSCommModule.kt",
+        "package": "app.aaps.pump.danars.di",
+        "functions": 56,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicPumpPlugin.kt",
+        "package": "app.aaps.pump.medtronic",
+        "functions": 55,
+        "type": "kotlin"
+      },
+      {
+        "name": "EquilManager.kt",
+        "package": "app.aaps.pump.equil.manager",
+        "functions": 52,
+        "type": "kotlin"
+      },
+      {
+        "name": "DateUtil.kt",
+        "package": "app.aaps.core.interfaces.utils",
+        "functions": 50,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumPlugin.kt",
+        "package": "app.aaps.pump.medtrum",
+        "functions": 50,
+        "type": "kotlin"
+      },
+      {
+        "name": "InsightConnectionService.kt",
+        "package": "app.aaps.pump.insight.connection_service",
+        "functions": 50,
+        "type": "kotlin"
+      },
+      {
+        "name": "DateUtilImpl.kt",
+        "package": "app.aaps.shared.impl.utils",
+        "functions": 50,
+        "type": "kotlin"
+      },
+      {
+        "name": "DanaRSPlugin.kt",
+        "package": "app.aaps.pump.danars",
+        "functions": 44,
+        "type": "kotlin"
+      },
+      {
+        "name": "DiaconnG8Plugin.kt",
+        "package": "app.aaps.pump.diaconn",
+        "functions": 44,
+        "type": "kotlin"
+      },
+      {
+        "name": "ParserTest.kt",
+        "package": "info.nightscout.comboctl.parser",
+        "functions": 44,
+        "type": "kotlin"
+      },
+      {
+        "name": "PatchManagerExecutor.kt",
+        "package": "app.aaps.pump.eopatch.ble",
+        "functions": 43,
+        "type": "kotlin"
+      },
+      {
+        "name": "CommandQueueImplementation.kt",
+        "package": "app.aaps.implementation.queue",
+        "functions": 43,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtronicHistoryData.kt",
+        "package": "app.aaps.pump.medtronic.data",
+        "functions": 42,
+        "type": "kotlin"
+      },
+      {
+        "name": "MedtrumService.kt",
+        "package": "app.aaps.pump.medtrum.services",
+        "functions": 41,
+        "type": "kotlin"
+      },
+      {
+        "name": "ByteBuf.kt",
+        "package": "app.aaps.pump.insight.utils",
+        "functions": 40,
+        "type": "kotlin"
+      },
+      {
+        "name": "EquilPumpPlugin.kt",
+        "package": "app.aaps.pump.equil",
+        "functions": 40,
+        "type": "kotlin"
+      },
+      {
+        "name": "EopatchViewModel.kt",
+        "package": "app.aaps.pump.eopatch.ui.viewmodel",
+        "functions": 39,
+        "type": "kotlin"
+      },
+      {
+        "name": "ApplicationLayer.kt",
+        "package": "info.nightscout.comboctl.base",
+        "functions": 39,
+        "type": "kotlin"
+      },
+      {
+        "name": "Pump.kt",
+        "package": "info.nightscout.comboctl.main",
+        "functions": 39,
+        "type": "kotlin"
+      },
+      {
+        "name": "ProfileSealed.kt",
+        "package": "app.aaps.core.objects.profile",
+        "functions": 38,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataHandlerMobile.kt",
+        "package": "app.aaps.plugins.sync.wear.wearintegration",
+        "functions": 38,
+        "type": "kotlin"
+      },
+      {
+        "name": "ImplementationModule.kt",
+        "package": "app.aaps.implementation.di",
+        "functions": 38,
+        "type": "kotlin"
+      },
+      {
+        "name": "Viewport.java",
+        "package": "com.jjoe64.graphview",
+        "functions": 38,
+        "type": "java"
+      },
+      {
+        "name": "Pump.kt",
+        "package": "app.aaps.core.interfaces.pump",
+        "functions": 37,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataSyncSelectorXdripImpl.kt",
+        "package": "app.aaps.plugins.sync.xdrip",
+        "functions": 37,
+        "type": "kotlin"
+      },
+      {
+        "name": "PumpIO.kt",
+        "package": "info.nightscout.comboctl.base",
+        "functions": 37,
+        "type": "kotlin"
+      },
+      {
+        "name": "UiModule.kt",
+        "package": "app.aaps.ui.di",
+        "functions": 36,
+        "type": "kotlin"
+      },
+      {
+        "name": "OmnipodManager.java",
+        "package": "app.aaps.pump.omnipod.eros.driver.manager",
+        "functions": 36,
+        "type": "java"
+      },
+      {
+        "name": "StoreDataForDbImpl.kt",
+        "package": "app.aaps.plugins.sync.nsShared",
+        "functions": 36,
+        "type": "kotlin"
+      },
+      {
+        "name": "EopatchPumpPlugin.kt",
+        "package": "app.aaps.pump.eopatch",
+        "functions": 35,
+        "type": "kotlin"
+      },
+      {
+        "name": "PumpPluginAbstract.kt",
+        "package": "app.aaps.pump.common",
+        "functions": 35,
+        "type": "kotlin"
+      },
+      {
+        "name": "StoreDataForDb.kt",
+        "package": "app.aaps.core.interfaces.nsclient",
+        "functions": 34,
+        "type": "kotlin"
+      },
+      {
+        "name": "BLEComm.kt",
+        "package": "app.aaps.pump.danars.services",
+        "functions": 34,
+        "type": "kotlin"
+      },
+      {
+        "name": "VirtualPumpPlugin.kt",
+        "package": "app.aaps.pump.virtual",
+        "functions": 33,
+        "type": "kotlin"
+      },
+      {
+        "name": "DataSyncSelectorV1.kt",
+        "package": "app.aaps.plugins.sync.nsclient",
+        "functions": 33,
+        "type": "kotlin"
+      }
+    ]
+  },
+  "package_analysis": [
+    {
+      "package": "app.aaps.database.persistence",
+      "file_count": 2,
+      "total_loc": 1928,
+      "total_functions": 173,
+      "avg_importance": 144.60944518628668,
+      "avg_complexity": 158.15
+    },
+    {
+      "package": "app.aaps.pump.omnipod.eros.driver.manager",
+      "file_count": 2,
+      "total_loc": 1858,
+      "total_functions": 153,
+      "avg_importance": 113.97987740653011,
+      "avg_complexity": 129.1
+    },
+    {
+      "package": "app.aaps.pump.medtrum.services",
+      "file_count": 2,
+      "total_loc": 1646,
+      "total_functions": 71,
+      "avg_importance": 104.63189429381484,
+      "avg_complexity": 130.0
+    },
+    {
+      "package": "app.aaps.pump.omnipod.dash",
+      "file_count": 2,
+      "total_loc": 1594,
+      "total_functions": 69,
+      "avg_importance": 104.04739507740014,
+      "avg_complexity": 111.3
+    },
+    {
+      "package": "app.aaps.pump.danars.services",
+      "file_count": 2,
+      "total_loc": 1424,
+      "total_functions": 57,
+      "avg_importance": 95.72010051632418,
+      "avg_complexity": 132.60000000000002
+    },
+    {
+      "package": "app.aaps.plugins.sync.wear.wearintegration",
+      "file_count": 3,
+      "total_loc": 2122,
+      "total_functions": 51,
+      "avg_importance": 91.65829601279756,
+      "avg_complexity": 122.10000000000001
+    },
+    {
+      "package": "app.aaps.pump.omnipod.eros",
+      "file_count": 2,
+      "total_loc": 1305,
+      "total_functions": 71,
+      "avg_importance": 88.44030967249134,
+      "avg_complexity": 118.85
+    },
+    {
+      "package": "app.aaps.pump.insight",
+      "file_count": 3,
+      "total_loc": 2233,
+      "total_functions": 103,
+      "avg_importance": 88.39608241164632,
+      "avg_complexity": 153.43333333333334
+    },
+    {
+      "package": "info.nightscout.comboctl.main",
+      "file_count": 7,
+      "total_loc": 6918,
+      "total_functions": 114,
+      "avg_importance": 87.70690071060645,
+      "avg_complexity": 143.04285714285714
+    },
+    {
+      "package": "app.aaps.plugins.aps.EN",
+      "file_count": 2,
+      "total_loc": 1783,
+      "total_functions": 30,
+      "avg_importance": 86.40059201583142,
+      "avg_complexity": 211.3
+    },
+    {
+      "package": "app.aaps.pump.diaconn.service",
+      "file_count": 2,
+      "total_loc": 1209,
+      "total_functions": 38,
+      "avg_importance": 84.12455358101496,
+      "avg_complexity": 100.1
+    },
+    {
+      "package": "app.aaps.wear.watchfaces",
+      "file_count": 3,
+      "total_loc": 1748,
+      "total_functions": 91,
+      "avg_importance": 74.72759165421219,
+      "avg_complexity": 106.80000000000001
+    },
+    {
+      "package": "app.aaps.pump.omnipod.dash.driver",
+      "file_count": 2,
+      "total_loc": 835,
+      "total_functions": 47,
+      "avg_importance": 73.52148969919568,
+      "avg_complexity": 42.95
+    },
+    {
+      "package": "app.aaps.pump.common.ui",
+      "file_count": 2,
+      "total_loc": 525,
+      "total_functions": 29,
+      "avg_importance": 69.3650323072458,
+      "avg_complexity": 33.05
+    },
+    {
+      "package": "app.aaps.pump.danar.services",
+      "file_count": 2,
+      "total_loc": 675,
+      "total_functions": 38,
+      "avg_importance": 67.97143372705068,
+      "avg_complexity": 60.35
+    },
+    {
+      "package": "app.aaps.plugins.main.profile",
+      "file_count": 2,
+      "total_loc": 871,
+      "total_functions": 36,
+      "avg_importance": 65.53215281956619,
+      "avg_complexity": 65.0
+    },
+    {
+      "package": "app.aaps.plugins.aps.openAPSAutoISF",
+      "file_count": 3,
+      "total_loc": 2494,
+      "total_functions": 45,
+      "avg_importance": 64.92044595745297,
+      "avg_complexity": 188.0666666666667
+    },
+    {
+      "package": "app.aaps.plugins.sync.nsclientV3",
+      "file_count": 3,
+      "total_loc": 2141,
+      "total_functions": 82,
+      "avg_importance": 63.45313072592776,
+      "avg_complexity": 125.10000000000001
+    },
+    {
+      "package": "app.aaps.pump.medtronic",
+      "file_count": 3,
+      "total_loc": 1699,
+      "total_functions": 68,
+      "avg_importance": 61.61943204921399,
+      "avg_complexity": 97.0
+    },
+    {
+      "package": "info.nightscout.comboctl.parser",
+      "file_count": 8,
+      "total_loc": 18890,
+      "total_functions": 59,
+      "avg_importance": 61.50548391265308,
+      "avg_complexity": 79.1375
+    },
+    {
+      "package": "app.aaps.pump.danar",
+      "file_count": 3,
+      "total_loc": 1033,
+      "total_functions": 50,
+      "avg_importance": 59.153109808252744,
+      "avg_complexity": 60.1
+    },
+    {
+      "package": "app.aaps.pump.omnipod.eros.ui",
+      "file_count": 3,
+      "total_loc": 1230,
+      "total_functions": 52,
+      "avg_importance": 57.901981408160374,
+      "avg_complexity": 51.36666666666667
+    },
+    {
+      "package": "app.aaps.pump.omnipod.eros.manager",
+      "file_count": 3,
+      "total_loc": 1162,
+      "total_functions": 69,
+      "avg_importance": 57.15815276349096,
+      "avg_complexity": 68.5
+    },
+    {
+      "package": "app.aaps.pump.diaconn",
+      "file_count": 3,
+      "total_loc": 1191,
+      "total_functions": 58,
+      "avg_importance": 56.72929399082392,
+      "avg_complexity": 46.63333333333333
+    },
+    {
+      "package": "app.aaps.plugins.main.general.overview",
+      "file_count": 5,
+      "total_loc": 2220,
+      "total_functions": 59,
+      "avg_importance": 56.59290093033745,
+      "avg_complexity": 64.62
+    },
+    {
+      "package": "app.aaps.pump.omnipod.dash.ui",
+      "file_count": 3,
+      "total_loc": 1319,
+      "total_functions": 55,
+      "avg_importance": 53.91585315040012,
+      "avg_complexity": 40.26666666666667
+    },
+    {
+      "package": "app.aaps.ui.activities.fragments",
+      "file_count": 7,
+      "total_loc": 2008,
+      "total_functions": 114,
+      "avg_importance": 50.892229463889805,
+      "avg_complexity": 29.785714285714285
+    },
+    {
+      "package": "app.aaps.pump.omnipod.dash.driver.pod.state",
+      "file_count": 3,
+      "total_loc": 969,
+      "total_functions": 53,
+      "avg_importance": 50.76003691102172,
+      "avg_complexity": 19.73333333333333
+    },
+    {
+      "package": "app.aaps.pump.eopatch.ble",
+      "file_count": 6,
+      "total_loc": 1457,
+      "total_functions": 118,
+      "avg_importance": 50.58906430703442,
+      "avg_complexity": 27.816666666666666
+    },
+    {
+      "package": "app.aaps.pump.medtronic.data",
+      "file_count": 2,
+      "total_loc": 1626,
+      "total_functions": 47,
+      "avg_importance": 50.090859494206754,
+      "avg_complexity": 147.15
+    }
+  ],
+  "file_type_comparison": {
+    "java": {
+      "count": 202,
+      "avg_loc": 103.77227722772277,
+      "avg_functions": 5.702970297029703,
+      "avg_importance": 16.488047751983622
+    },
+    "kotlin": {
+      "count": 3012,
+      "avg_loc": 97.07005312084993,
+      "avg_functions": 4.334993359893758,
+      "avg_importance": 17.68084968712214
+    }
+  }
+}

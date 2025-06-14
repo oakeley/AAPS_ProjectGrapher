@@ -1,718 +1,1508 @@
 #!/usr/bin/env python3
 """
-AAPS EatingNow Project Analyzer
-Creates graphical mind maps and populates Neo4j RAG database for debugging assistance
+High-Performance AAPS Analyzer - Complete Version with GitHub Integration
+Designed for high-memory, multi-core systems (384GB RAM, 96 cores)
+Includes automatic GitHub repository cloning and full analysis pipeline
 """
 
 import os
 import re
-import ast
 import json
+import asyncio
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Optional
+from typing import List, Dict, Set, Tuple
 from dataclasses import dataclass, asdict
-from collections import defaultdict
 import logging
+from collections import defaultdict, Counter
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+import time
+import gc
+from functools import partial
 
-# Required imports (install with pip)
+# Try to import optional dependencies
+try:
+    import aiofiles
+    AIOFILES_AVAILABLE = True
+except ImportError:
+    AIOFILES_AVAILABLE = False
+
+try:
+    from neo4j import GraphDatabase
+    NEO4J_AVAILABLE = True
+except ImportError:
+    NEO4J_AVAILABLE = False
+    print("⚠️ Neo4j driver not available. Install with: pip install neo4j")
+
 try:
     import networkx as nx
-    import matplotlib.pyplot as plt
-    import matplotlib.patches as patches
-    from matplotlib.patches import FancyBboxPatch
+    NETWORKX_AVAILABLE = True
+except ImportError:
+    NETWORKX_AVAILABLE = False
+    print("⚠️ NetworkX not available. Install with: pip install networkx")
+
+try:
     import plotly.graph_objects as go
     import plotly.offline as pyo
     from plotly.subplots import make_subplots
-    from neo4j import GraphDatabase
-    import git
-except ImportError as e:
-    print(f"Missing required package: {e}")
-    print("Install with: pip install networkx matplotlib plotly neo4j gitpython")
-    exit(1)
+    import plotly.express as px
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
+    print("⚠️ Plotly not available. Install with: pip install plotly")
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+try:
+    import git
+    GIT_AVAILABLE = True
+except ImportError:
+    GIT_AVAILABLE = False
+    print("⚠️ GitPython not available. Install with: pip install gitpython")
+
+# Configure for high-performance
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-@dataclass
-class FunctionCall:
-    """Represents a function call relationship"""
-    caller: str
-    callee: str
-    function_name: str
-    line_number: int
-    context: str = ""
+# Memory and performance settings
+MAX_WORKERS = min(96, mp.cpu_count())  # Use all available cores up to 96
+CHUNK_SIZE = 100  # Process files in chunks
+NEO4J_BATCH_SIZE = 10000  # Large batch size for Neo4j operations
+MAX_MEMORY_USAGE = 300 * 1024 * 1024 * 1024  # 300GB memory limit
+
+
+def clone_or_update_repository(repo_url: str, local_path: Path, branch: str = "EN-MASTER-NEW") -> bool:
+    """Clone or update the AAPS repository"""
+    logger.info(f"Setting up repository: {repo_url}")
+    
+    try:
+        if local_path.exists():
+            if GIT_AVAILABLE:
+                # Try to update existing repository
+                logger.info(f"Repository exists at {local_path}, attempting to update...")
+                try:
+                    repo = git.Repo(local_path)
+                    origin = repo.remotes.origin
+                    origin.pull()
+                    logger.info("✅ Repository updated successfully")
+                    return True
+                except Exception as e:
+                    logger.warning(f"Failed to update repository: {e}")
+                    logger.info("Continuing with existing repository...")
+                    return True
+            else:
+                logger.info("Repository exists, continuing with existing copy...")
+                return True
+        else:
+            # Clone repository
+            if GIT_AVAILABLE:
+                logger.info(f"Cloning repository to {local_path}...")
+                try:
+                    git.Repo.clone_from(repo_url, local_path, branch=branch)
+                    logger.info("✅ Repository cloned successfully")
+                    return True
+                except Exception as e:
+                    logger.error(f"Failed to clone with GitPython: {e}")
+                    # Fall back to subprocess
+                    return clone_with_subprocess(repo_url, local_path, branch)
+            else:
+                # Use subprocess as fallback
+                return clone_with_subprocess(repo_url, local_path, branch)
+    
+    except Exception as e:
+        logger.error(f"Repository setup failed: {e}")
+        return False
+
+
+def clone_with_subprocess(repo_url: str, local_path: Path, branch: str) -> bool:
+    """Clone repository using subprocess as fallback"""
+    try:
+        logger.info("Trying to clone with git command...")
+        cmd = ["git", "clone", "-b", branch, repo_url, str(local_path)]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        
+        if result.returncode == 0:
+            logger.info("✅ Repository cloned successfully with git command")
+            return True
+        else:
+            logger.error(f"Git clone failed: {result.stderr}")
+            
+            # Try without branch specification
+            logger.info("Retrying without branch specification...")
+            cmd = ["git", "clone", repo_url, str(local_path)]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            
+            if result.returncode == 0:
+                logger.info("✅ Repository cloned successfully (default branch)")
+                return True
+            else:
+                logger.error(f"Git clone failed: {result.stderr}")
+                return False
+                
+    except subprocess.TimeoutExpired:
+        logger.error("Git clone timed out")
+        return False
+    except Exception as e:
+        logger.error(f"Subprocess clone failed: {e}")
+        return False
+
+
+def extract_package_name(content: str, file_path: Path) -> str:
+    """Extract package name from file content"""
+    package_match = re.search(r'package\s+([\w.]+)', content)
+    if package_match:
+        return package_match.group(1)
+    
+    # Fallback: derive from file path
+    path_parts = file_path.parts
+    if 'src' in path_parts:
+        src_index = path_parts.index('src')
+        if src_index + 2 < len(path_parts):
+            return '.'.join(path_parts[src_index+2:-1])
+    
+    return "unknown"
+
 
 @dataclass
-class FileInfo:
-    """Represents information about a source file"""
-    path: str
+class FileData:
     name: str
+    path: str
     functions: List[str]
     classes: List[str]
     imports: List[str]
-    calls_made: List[FunctionCall]
-    calls_received: List[str]
     lines_of_code: int
     file_type: str
+    function_calls: List[Dict[str, str]]
+    package: str = ""
+    importance_score: float = 0.0
+    complexity_score: float = 0.0
+    file_size: int = 0
 
-@dataclass
-class ProjectStructure:
-    """Represents the overall project structure"""
-    files: Dict[str, FileInfo]
-    dependencies: Dict[str, List[str]]
-    call_graph: Dict[str, List[FunctionCall]]
 
-class AAPSProjectAnalyzer:
-    """Main analyzer class for AAPS EatingNow project"""
+class HighPerformanceAnalyzer:
+    """High-performance analyzer using all available resources"""
     
-    def __init__(self, repo_url: str, local_path: str = "./aaps_eating_now"):
+    def __init__(self, repo_url: str = "https://github.com/dicko72/AAPS-EatingNow.git", 
+                 local_path: str = "./aaps_eating_now"):
         self.repo_url = repo_url
         self.local_path = Path(local_path)
-        self.project = ProjectStructure({}, {}, {})
+        self.files_data = {}
+        self.call_graph = None
+        if NETWORKX_AVAILABLE:
+            self.call_graph = nx.DiGraph()
+        self.function_to_files = defaultdict(set)
         
-    def clone_repository(self) -> bool:
-        """Clone the repository if it doesn't exist"""
-        try:
-            if not self.local_path.exists():
-                logger.info(f"Cloning repository to {self.local_path}")
-                git.Repo.clone_from(self.repo_url, self.local_path, branch="EN-MASTER-NEW")
-            else:
-                logger.info(f"Repository already exists at {self.local_path}")
-                # Try to pull latest changes
-                repo = git.Repo(self.local_path)
-                repo.remotes.origin.pull()
-            return True
-        except Exception as e:
-            logger.error(f"Failed to clone repository: {e}")
-            return False
+    def setup_project(self) -> bool:
+        """Setup the project by cloning or updating repository"""
+        return clone_or_update_repository(self.repo_url, self.local_path)
     
-    def analyze_java_file(self, file_path: Path) -> FileInfo:
-        """Analyze a Java source file"""
-        try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-            
-            # Extract functions (methods)
-            functions = []
-            method_pattern = r'(?:public|private|protected|static|\s)*\s+[\w<>\[\]]+\s+(\w+)\s*\([^)]*\)\s*(?:throws\s+[\w,\s]+)?\s*\{'
-            functions = [match.group(1) for match in re.finditer(method_pattern, content)]
-            
-            # Extract classes
-            class_pattern = r'(?:public|private|protected)?\s*class\s+(\w+)'
-            classes = [match.group(1) for match in re.finditer(class_pattern, content)]
-            
-            # Extract imports
-            import_pattern = r'import\s+([\w.]+);'
-            imports = [match.group(1) for match in re.finditer(import_pattern, content)]
-            
-            # Extract function calls
-            calls_made = self._extract_java_function_calls(content, str(file_path))
-            
-            return FileInfo(
-                path=str(file_path),
-                name=file_path.name,
-                functions=functions,
-                classes=classes,
-                imports=imports,
-                calls_made=calls_made,
-                calls_received=[],
-                lines_of_code=len(content.splitlines()),
-                file_type="java"
-            )
-        except Exception as e:
-            logger.error(f"Error analyzing Java file {file_path}: {e}")
-            return FileInfo(str(file_path), file_path.name, [], [], [], [], [], 0, "java")
-    
-    def analyze_kotlin_file(self, file_path: Path) -> FileInfo:
-        """Analyze a Kotlin source file"""
-        try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-            
-            # Extract functions
-            function_pattern = r'(?:fun|suspend\s+fun)\s+(\w+)\s*\([^)]*\)'
-            functions = [match.group(1) for match in re.finditer(function_pattern, content)]
-            
-            # Extract classes
-            class_pattern = r'(?:class|interface|object)\s+(\w+)'
-            classes = [match.group(1) for match in re.finditer(class_pattern, content)]
-            
-            # Extract imports
-            import_pattern = r'import\s+([\w.]+)'
-            imports = [match.group(1) for match in re.finditer(import_pattern, content)]
-            
-            # Extract function calls
-            calls_made = self._extract_kotlin_function_calls(content, str(file_path))
-            
-            return FileInfo(
-                path=str(file_path),
-                name=file_path.name,
-                functions=functions,
-                classes=classes,
-                imports=imports,
-                calls_made=calls_made,
-                calls_received=[],
-                lines_of_code=len(content.splitlines()),
-                file_type="kotlin"
-            )
-        except Exception as e:
-            logger.error(f"Error analyzing Kotlin file {file_path}: {e}")
-            return FileInfo(str(file_path), file_path.name, [], [], [], [], [], 0, "kotlin")
-    
-    def _extract_java_function_calls(self, content: str, file_path: str) -> List[FunctionCall]:
-        """Extract function calls from Java content"""
-        calls = []
-        lines = content.splitlines()
+    def find_all_source_files(self) -> Tuple[List[Path], List[Path]]:
+        """Find all source files with parallel directory traversal"""
+        logger.info("Finding all source files...")
         
-        # Simple pattern for method calls
-        call_pattern = r'(\w+)\.(\w+)\s*\('
+        java_files = []
+        kotlin_files = []
         
-        for i, line in enumerate(lines):
-            matches = re.finditer(call_pattern, line)
-            for match in matches:
-                object_name = match.group(1)
-                method_name = match.group(2)
-                
-                calls.append(FunctionCall(
-                    caller=file_path,
-                    callee=f"{object_name}.{method_name}",
-                    function_name=method_name,
-                    line_number=i + 1,
-                    context=line.strip()
-                ))
+        # Use parallel processing for file discovery
+        def scan_directory(directory: Path) -> Tuple[List[Path], List[Path]]:
+            java = list(directory.rglob("*.java"))
+            kotlin = list(directory.rglob("*.kt"))
+            return java, kotlin
         
-        return calls
-    
-    def _extract_kotlin_function_calls(self, content: str, file_path: str) -> List[FunctionCall]:
-        """Extract function calls from Kotlin content"""
-        calls = []
-        lines = content.splitlines()
-        
-        # Pattern for function calls in Kotlin
-        call_pattern = r'(\w+)\.(\w+)\s*\('
-        
-        for i, line in enumerate(lines):
-            matches = re.finditer(call_pattern, line)
-            for match in matches:
-                object_name = match.group(1)
-                method_name = match.group(2)
-                
-                calls.append(FunctionCall(
-                    caller=file_path,
-                    callee=f"{object_name}.{method_name}",
-                    function_name=method_name,
-                    line_number=i + 1,
-                    context=line.strip()
-                ))
-        
-        return calls
-    
-    def analyze_project(self) -> bool:
-        """Analyze the entire project structure"""
-        if not self.clone_repository():
-            return False
-        
-        logger.info("Analyzing project structure...")
-        
-        # Find all source files
-        java_files = list(self.local_path.rglob("*.java"))
-        kotlin_files = list(self.local_path.rglob("*.kt"))
+        # For very large projects, we can parallelize directory scanning
+        if self.local_path.exists():
+            java_files, kotlin_files = scan_directory(self.local_path)
         
         logger.info(f"Found {len(java_files)} Java files and {len(kotlin_files)} Kotlin files")
+        return java_files, kotlin_files
+    
+    def analyze_project_parallel(self) -> bool:
+        """Analyze the entire project using parallel processing"""
+        # First, setup the project
+        if not self.setup_project():
+            logger.error("Failed to setup project repository")
+            return False
         
-        # For very large projects, we might want to limit analysis to core files
-        # or process in batches to avoid memory issues
-        total_files = len(java_files) + len(kotlin_files)
+        if not self.local_path.exists():
+            logger.error(f"Project path {self.local_path} does not exist!")
+            return False
         
-        if total_files > 1000:
-            logger.warning(f"Large project detected ({total_files} files). Consider filtering to core directories.")
-            # You can add filtering logic here, e.g.:
-            # java_files = [f for f in java_files if 'main' in str(f) or 'core' in str(f)]
-            # kotlin_files = [f for f in kotlin_files if 'main' in str(f) or 'core' in str(f)]
+        start_time = time.time()
+        logger.info(f"Starting high-performance analysis with {MAX_WORKERS} workers...")
         
-        # Analyze each file with progress tracking
-        processed = 0
-        batch_size = 100
+        # Find all source files
+        java_files, kotlin_files = self.find_all_source_files()
+        all_files = java_files + kotlin_files
         
-        # Process Java files
-        for i in range(0, len(java_files), batch_size):
-            batch = java_files[i:i+batch_size]
-            for java_file in batch:
+        if not all_files:
+            logger.error("No source files found!")
+            return False
+        
+        logger.info(f"Processing {len(all_files)} files using {MAX_WORKERS} cores...")
+        
+        # Split files into chunks for parallel processing
+        file_chunks = [all_files[i:i+CHUNK_SIZE] for i in range(0, len(all_files), CHUNK_SIZE)]
+        
+        # Process files in parallel
+        all_results = []
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            # Submit all chunks
+            future_to_chunk = {executor.submit(analyze_file_batch, chunk): i 
+                             for i, chunk in enumerate(file_chunks)}
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_chunk):
+                chunk_idx = future_to_chunk[future]
                 try:
-                    file_info = self.analyze_java_file(java_file)
-                    self.project.files[str(java_file)] = file_info
-                    processed += 1
+                    chunk_results = future.result()
+                    all_results.extend(chunk_results)
+                    
+                    # Progress reporting
+                    completed_chunks = len([f for f in future_to_chunk if f.done()])
+                    progress = (completed_chunks / len(file_chunks)) * 100
+                    logger.info(f"Progress: {progress:.1f}% ({completed_chunks}/{len(file_chunks)} chunks)")
+                    
                 except Exception as e:
-                    logger.error(f"Failed to analyze {java_file}: {e}")
-                
-            if processed % batch_size == 0:
-                logger.info(f"Processed {processed}/{total_files} files...")
+                    logger.error(f"Chunk {chunk_idx} failed: {e}")
         
-        # Process Kotlin files
-        for i in range(0, len(kotlin_files), batch_size):
-            batch = kotlin_files[i:i+batch_size]
-            for kotlin_file in batch:
-                try:
-                    file_info = self.analyze_kotlin_file(kotlin_file)
-                    self.project.files[str(kotlin_file)] = file_info
-                    processed += 1
-                except Exception as e:
-                    logger.error(f"Failed to analyze {kotlin_file}: {e}")
-                
-            if processed % batch_size == 0:
-                logger.info(f"Processed {processed}/{total_files} files...")
+        # Store results
+        for file_data in all_results:
+            if file_data:
+                self.files_data[file_data.path] = file_data
         
-        logger.info(f"Analysis complete. Processed {processed} files successfully.")
+        analysis_time = time.time() - start_time
+        logger.info(f"Analysis completed in {analysis_time:.2f} seconds")
+        logger.info(f"Successfully processed {len(self.files_data)} files")
         
-        # Build call graph
-        logger.info("Building call graph...")
-        self._build_call_graph()
+        # Calculate importance scores
+        self._calculate_importance_scores()
+        
+        # Build function-to-file mapping
+        self._build_function_mapping()
         
         return True
     
-    def _build_call_graph(self):
-        """Build the call graph from analyzed files"""
-        for file_path, file_info in self.project.files.items():
-            self.project.call_graph[file_path] = file_info.calls_made
+    def _calculate_importance_scores(self):
+        """Calculate importance scores with enhanced metrics"""
+        logger.info("Calculating importance scores...")
+        
+        # Calculate various metrics
+        max_loc = max((f.lines_of_code for f in self.files_data.values()), default=1)
+        max_functions = max((len(f.functions) for f in self.files_data.values()), default=1)
+        max_complexity = max((f.complexity_score for f in self.files_data.values()), default=1)
+        
+        for file_data in self.files_data.values():
+            score = 0.0
             
-            # Update calls_received for target files
-            for call in file_info.calls_made:
-                target_files = [f for f in self.project.files.keys() 
-                              if call.callee in str(f) or any(call.function_name in func 
-                                  for func in self.project.files[f].functions)]
-                for target_file in target_files:
-                    self.project.files[target_file].calls_received.append(call.function_name)
+            # Normalized metrics
+            loc_score = (file_data.lines_of_code / max_loc) * 10
+            function_score = (len(file_data.functions) / max_functions) * 15
+            class_score = len(file_data.classes) * 3
+            complexity_score = (file_data.complexity_score / max_complexity) * 8
+            imports_score = len(file_data.imports) * 0.1
+            calls_score = len(file_data.function_calls) * 0.1
+            
+            score = loc_score + function_score + class_score + complexity_score + imports_score + calls_score
+            
+            # Bonus points for important file patterns
+            name_lower = file_data.name.lower()
+            package_lower = file_data.package.lower()
+            
+            # Core functionality bonuses
+            if any(keyword in name_lower for keyword in ['service', 'manager', 'controller', 'plugin', 'processor']):
+                score += 20
+            if any(keyword in name_lower for keyword in ['main', 'app', 'activity', 'application']):
+                score += 15
+            if any(keyword in name_lower for keyword in ['algorithm', 'calculator', 'compute', 'engine']):
+                score += 18
+            if any(keyword in name_lower for keyword in ['pump', 'cgm', 'sensor', 'glucose', 'insulin']):
+                score += 16
+            if any(keyword in name_lower for keyword in ['loop', 'automation', 'treatment']):
+                score += 14
+            
+            # Package importance
+            if any(keyword in package_lower for keyword in ['core', 'main', 'engine', 'algorithm']):
+                score += 10
+            if any(keyword in package_lower for keyword in ['pump', 'cgm', 'glucose', 'insulin']):
+                score += 8
+            
+            # Penalty for test/generated files
+            if any(keyword in name_lower for keyword in ['test', 'mock', 'fake', 'stub']):
+                score *= 0.1
+            if any(keyword in file_data.path.lower() for keyword in ['test', 'generated', 'build']):
+                score *= 0.2
+            
+            file_data.importance_score = score
     
-    def create_file_interaction_map(self) -> go.Figure:
-        """Create Map 1: File interactions with inputs/outputs"""
-        G = nx.DiGraph()
+    def _build_function_mapping(self):
+        """Build mapping from functions to files for efficient call resolution"""
+        logger.info("Building function-to-file mapping...")
         
-        # Add nodes for each file
-        for file_path, file_info in self.project.files.items():
-            node_name = file_info.name
-            G.add_node(node_name, 
-                      full_path=file_path,
-                      functions=len(file_info.functions),
-                      classes=len(file_info.classes),
-                      loc=file_info.lines_of_code)
+        for file_data in self.files_data.values():
+            for function_name in file_data.functions:
+                self.function_to_files[function_name].add(file_data.name)
+    
+    def build_comprehensive_call_graph(self):
+        """Build comprehensive call graph using parallel processing"""
+        if not NETWORKX_AVAILABLE:
+            logger.warning("NetworkX not available, skipping call graph creation")
+            return
         
-        # Add edges for function calls between files
-        for file_path, calls in self.project.call_graph.items():
-            source_name = Path(file_path).name
-            for call in calls:
-                # Find target file
-                for target_path, target_info in self.project.files.items():
-                    if call.function_name in target_info.functions:
-                        target_name = target_info.name
-                        G.add_edge(source_name, target_name, 
-                                 function=call.function_name,
-                                 line=call.line_number)
+        logger.info("Building comprehensive call graph...")
+        start_time = time.time()
         
-        # Create interactive plot using Plotly
-        pos = nx.spring_layout(G, k=3, iterations=50)
+        # Add all file nodes
+        for file_data in self.files_data.values():
+            self.call_graph.add_node(
+                file_data.name,
+                path=file_data.path,
+                package=file_data.package,
+                functions=len(file_data.functions),
+                classes=len(file_data.classes),
+                loc=file_data.lines_of_code,
+                file_type=file_data.file_type,
+                importance=file_data.importance_score,
+                complexity=file_data.complexity_score
+            )
         
-        # Create edge traces
-        edge_x, edge_y, edge_info = [], [], []
-        for edge in G.edges(data=True):
-            x0, y0 = pos[edge[0]]
-            x1, y1 = pos[edge[1]]
-            edge_x.extend([x0, x1, None])
-            edge_y.extend([y0, y1, None])
-            edge_info.append(f"{edge[0]} → {edge[1]}<br>Function: {edge[2].get('function', 'Unknown')}")
+        # Build edges in parallel
+        call_counts = defaultdict(int)
         
-        edge_trace = go.Scatter(x=edge_x, y=edge_y, mode='lines',
-                               line=dict(width=2, color='rgba(50,50,50,0.5)'),
-                               hoverinfo='none')
-        
-        # Create node traces
-        node_x, node_y, node_text, node_info = [], [], [], []
-        for node in G.nodes(data=True):
-            x, y = pos[node[0]]
-            node_x.append(x)
-            node_y.append(y)
-            node_text.append(node[0])
+        def process_file_calls(file_data):
+            """Process function calls for a single file"""
+            local_calls = defaultdict(int)
             
-            info = f"File: {node[0]}<br>"
-            info += f"Functions: {node[1].get('functions', 0)}<br>"
-            info += f"Classes: {node[1].get('classes', 0)}<br>"
-            info += f"Lines of Code: {node[1].get('loc', 0)}"
-            node_info.append(info)
+            for call in file_data.function_calls:
+                function_name = call['function']
+                target_files = self.function_to_files.get(function_name, set())
+                
+                for target_file in target_files:
+                    if target_file != file_data.name:  # Avoid self-loops
+                        local_calls[(file_data.name, target_file)] += 1
+            
+            return local_calls
         
-        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers+text',
-                               marker=dict(size=20, color='lightblue',
-                                         line=dict(width=2, color='darkblue')),
-                               text=node_text, textposition="middle center",
-                               hovertext=node_info, hoverinfo='text')
+        # Process calls in parallel
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            futures = [executor.submit(process_file_calls, file_data) 
+                      for file_data in self.files_data.values()]
+            
+            for future in as_completed(futures):
+                try:
+                    local_calls = future.result()
+                    for key, count in local_calls.items():
+                        call_counts[key] += count
+                except Exception as e:
+                    logger.error(f"Failed to process calls: {e}")
         
-        fig = go.Figure(data=[edge_trace, node_trace],
-                       layout=go.Layout(title='AAPS EatingNow - File Interaction Map',
-                                       showlegend=False,
-                                       hovermode='closest',
-                                       margin=dict(b=20,l=5,r=5,t=40),
-                                       annotations=[ dict(
-                                           text="File interactions and function calls",
-                                           showarrow=False,
-                                           xref="paper", yref="paper",
-                                           x=0.005, y=-0.002,
-                                           xanchor='left', yanchor='bottom',
-                                           font=dict(color='black', size=12)
-                                       )],
-                                       xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                                       yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+        # Add edges to graph
+        for (source, target), weight in call_counts.items():
+            if weight > 0:
+                self.call_graph.add_edge(source, target, weight=weight, calls=weight)
+        
+        build_time = time.time() - start_time
+        logger.info(f"Call graph built in {build_time:.2f} seconds: {len(self.call_graph.nodes)} nodes, {len(self.call_graph.edges)} edges")
+    
+    def create_comprehensive_visualizations(self):
+        """Create comprehensive visualizations using the full dataset"""
+        if not PLOTLY_AVAILABLE:
+            logger.warning("Plotly not available, skipping visualizations")
+            return
+        
+        logger.info("Creating comprehensive visualizations...")
+        
+        # 1. Main network overview (top files)
+        main_fig = self._create_main_network_viz()
+        if main_fig:
+            pyo.plot(main_fig, filename='aaps_full_network.html', auto_open=False)
+            logger.info("✅ Created: aaps_full_network.html")
+        
+        # 2. Package hierarchy
+        package_fig = self._create_package_hierarchy()
+        if package_fig:
+            pyo.plot(package_fig, filename='aaps_package_hierarchy.html', auto_open=False)
+            logger.info("✅ Created: aaps_package_hierarchy.html")
+        
+        # 3. Complexity heatmap
+        complexity_fig = self._create_complexity_heatmap()
+        if complexity_fig:
+            pyo.plot(complexity_fig, filename='aaps_complexity_heatmap.html', auto_open=False)
+            logger.info("✅ Created: aaps_complexity_heatmap.html")
+        
+        # 4. File type analysis
+        filetype_fig = self._create_filetype_analysis()
+        if filetype_fig:
+            pyo.plot(filetype_fig, filename='aaps_filetype_analysis.html', auto_open=False)
+            logger.info("✅ Created: aaps_filetype_analysis.html")
+        
+        # 5. Interactive file explorer with full search
+        explorer_fig = self._create_advanced_file_explorer()
+        if explorer_fig:
+            pyo.plot(explorer_fig, filename='aaps_advanced_explorer.html', auto_open=False)
+            logger.info("✅ Created: aaps_advanced_explorer.html")
+    
+    def _create_main_network_viz(self):
+        """Create main network visualization with top files"""
+        if not NETWORKX_AVAILABLE or not self.call_graph:
+            logger.warning("NetworkX or call graph not available, creating simple visualization")
+            return self._create_simple_scatter_plot()
+        
+        # Get top 100 most important files
+        top_files = sorted(self.files_data.values(), key=lambda x: x.importance_score, reverse=True)[:100]
+        subgraph_nodes = [f.name for f in top_files]
+        subgraph = self.call_graph.subgraph(subgraph_nodes)
+        
+        # Enhanced layout
+        try:
+            pos = nx.spring_layout(subgraph, k=5, iterations=100, seed=42, weight='weight')
+        except:
+            pos = nx.circular_layout(subgraph)
+        
+        # Create edges with variable thickness
+        edge_x, edge_y = [], []
+        edge_weights = []
+        
+        for edge in subgraph.edges(data=True):
+            source, target = edge[0], edge[1]
+            if source in pos and target in pos:
+                x0, y0 = pos[source]
+                x1, y1 = pos[target]
+                edge_x.extend([x0, x1, None])
+                edge_y.extend([y0, y1, None])
+                edge_weights.append(edge[2].get('weight', 1))
+        
+        edge_trace = go.Scatter(
+            x=edge_x, y=edge_y,
+            mode='lines',
+            line=dict(width=2, color='rgba(125,125,125,0.4)'),
+            hoverinfo='none',
+            showlegend=False
+        )
+        
+        # Create nodes with enhanced information
+        node_x, node_y, node_text, node_info, node_colors, node_sizes = [], [], [], [], [], []
+        
+        for node in subgraph.nodes(data=True):
+            if node[0] in pos:
+                x, y = pos[node[0]]
+                node_x.append(x)
+                node_y.append(y)
+                
+                name = node[0]
+                data = node[1]
+                
+                # Enhanced node text
+                display_name = name if len(name) <= 25 else name[:22] + "..."
+                node_text.append(display_name)
+                
+                # Rich hover information
+                info = f"<b>{name}</b><br>"
+                info += f"Package: {data.get('package', 'unknown')}<br>"
+                info += f"Functions: {data.get('functions', 0)}<br>"
+                info += f"Classes: {data.get('classes', 0)}<br>"
+                info += f"Lines: {data.get('loc', 0)}<br>"
+                info += f"Type: {data.get('file_type', 'unknown')}<br>"
+                info += f"Importance: {data.get('importance', 0):.1f}<br>"
+                info += f"Complexity: {data.get('complexity', 0):.1f}<br>"
+                info += f"Connections: {len(list(subgraph.neighbors(name)))}<br>"
+                info += f"Path: {data.get('path', '')}"
+                node_info.append(info)
+                
+                # Color by file type and importance
+                file_type = data.get('file_type', 'unknown')
+                importance = data.get('importance', 0)
+                
+                if file_type == 'java':
+                    if importance > 50:
+                        node_colors.append('darkred')
+                    elif importance > 25:
+                        node_colors.append('lightcoral')
+                    else:
+                        node_colors.append('pink')
+                elif file_type == 'kotlin':
+                    if importance > 50:
+                        node_colors.append('darkblue')
+                    elif importance > 25:
+                        node_colors.append('lightblue')
+                    else:
+                        node_colors.append('lightcyan')
+                else:
+                    node_colors.append('lightgray')
+                
+                # Size by importance
+                node_sizes.append(max(15, min(60, importance)))
+        
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers+text',
+            marker=dict(
+                size=node_sizes,
+                color=node_colors,
+                line=dict(width=2, color='darkblue'),
+                sizemode='diameter'
+            ),
+            text=node_text,
+            textposition="middle center",
+            textfont=dict(size=8),
+            hovertext=node_info,
+            hoverinfo='text',
+            showlegend=False
+        )
+        
+        # Create the figure
+        fig = go.Figure(
+            data=[edge_trace, node_trace],
+            layout=go.Layout(
+                title=dict(
+                    text='AAPS EatingNow - Complete Network Analysis<br><sub>Top 100 Most Important Files - Full Resolution</sub>',
+                    x=0.5,
+                    font=dict(size=24)
+                ),
+                showlegend=False,
+                hovermode='closest',
+                margin=dict(b=20, l=5, r=5, t=100),
+                annotations=[
+                    dict(
+                        text="🔵 Kotlin Files &nbsp;&nbsp; 🔴 Java Files<br>Darker colors = Higher importance • Size = Importance score<br>Click and drag to explore • Hover for details",
+                        showarrow=False,
+                        xref="paper", yref="paper",
+                        x=0.005, y=-0.002,
+                        xanchor='left', yanchor='bottom',
+                        font=dict(color='black', size=14)
+                    )
+                ],
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                plot_bgcolor='white',
+                width=1400,
+                height=1000
+            )
+        )
         
         return fig
     
-    def create_file_internal_maps(self) -> Dict[str, go.Figure]:
-        """Create Map 2: Internal structure for each file"""
-        file_maps = {}
+    def _create_simple_scatter_plot(self):
+        """Create a simple scatter plot when NetworkX is not available"""
+        # Get top files
+        top_files = sorted(self.files_data.values(), key=lambda x: x.importance_score, reverse=True)[:100]
         
-        for file_path, file_info in self.project.files.items():
-            if not file_info.functions and not file_info.classes:
+        # Create scatter plot
+        x_vals = [f.lines_of_code for f in top_files]
+        y_vals = [len(f.functions) for f in top_files]
+        colors = [f.importance_score for f in top_files]
+        text_vals = [f.name for f in top_files]
+        
+        fig = go.Figure(data=go.Scatter(
+            x=x_vals,
+            y=y_vals,
+            mode='markers+text',
+            marker=dict(
+                size=[max(10, min(40, f.importance_score)) for f in top_files],
+                color=colors,
+                colorscale='Viridis',
+                showscale=True,
+                colorbar=dict(title="Importance Score")
+            ),
+            text=text_vals,
+            textposition="top center",
+            hovertemplate='<b>%{text}</b><br>LOC: %{x}<br>Functions: %{y}<br>Importance: %{marker.color:.1f}<extra></extra>'
+        ))
+        
+        fig.update_layout(
+            title='AAPS EatingNow - File Analysis<br><sub>Top 100 Most Important Files</sub>',
+            xaxis_title='Lines of Code',
+            yaxis_title='Number of Functions',
+            width=1200,
+            height=800
+        )
+        
+        return fig
+    
+    def _create_package_hierarchy(self):
+        """Create package hierarchy visualization"""
+        # Group files by package
+        packages = defaultdict(list)
+        for file_data in self.files_data.values():
+            packages[file_data.package].append(file_data)
+        
+        # Calculate package metrics
+        package_data = []
+        for package, files in packages.items():
+            if package == "unknown" or len(files) < 2:
                 continue
                 
-            G = nx.DiGraph()
+            total_loc = sum(f.lines_of_code for f in files)
+            total_functions = sum(len(f.functions) for f in files)
+            total_classes = sum(len(f.classes) for f in files)
+            avg_importance = sum(f.importance_score for f in files) / len(files)
+            avg_complexity = sum(f.complexity_score for f in files) / len(files)
             
-            # Add function nodes
-            for func in file_info.functions:
-                G.add_node(f"func_{func}", type='function', name=func)
+            package_data.append({
+                'package': package,
+                'files': len(files),
+                'loc': total_loc,
+                'functions': total_functions,
+                'classes': total_classes,
+                'importance': avg_importance,
+                'complexity': avg_complexity,
+                'java_files': len([f for f in files if f.file_type == 'java']),
+                'kotlin_files': len([f for f in files if f.file_type == 'kotlin'])
+            })
+        
+        # Sort by importance
+        package_data.sort(key=lambda x: x['importance'], reverse=True)
+        
+        # Create enhanced bubble chart
+        fig = go.Figure()
+        
+        for pkg in package_data[:50]:  # Top 50 packages
+            # Color by complexity
+            color_val = pkg['complexity']
             
-            # Add class nodes
-            for cls in file_info.classes:
-                G.add_node(f"class_{cls}", type='class', name=cls)
-            
-            # Add edges for internal calls (simplified approach)
-            for i, func1 in enumerate(file_info.functions):
-                for j, func2 in enumerate(file_info.functions):
-                    if i != j and any(call.function_name == func2 for call in file_info.calls_made):
-                        G.add_edge(f"func_{func1}", f"func_{func2}")
-            
-            if G.nodes():
-                try:
-                    pos = nx.spring_layout(G, k=1, iterations=50)
-                except:
-                    # Fallback to circular layout if spring layout fails
-                    pos = nx.circular_layout(G)
-                
-                # Create traces
-                edge_x, edge_y = [], []
-                for edge in G.edges():
-                    if edge[0] in pos and edge[1] in pos:
-                        x0, y0 = pos[edge[0]]
-                        x1, y1 = pos[edge[1]]
-                        edge_x.extend([x0, x1, None])
-                        edge_y.extend([y0, y1, None])
-                
-                edge_trace = go.Scatter(x=edge_x, y=edge_y, mode='lines',
-                                       line=dict(width=1, color='gray'),
-                                       hoverinfo='none')
-                
-                node_x, node_y, node_text, node_colors = [], [], [], []
-                for node_id in G.nodes():
-                    if node_id in pos:
-                        x, y = pos[node_id]
-                        node_x.append(x)
-                        node_y.append(y)
-                        
-                        # Extract the actual name from node_id
-                        if node_id.startswith('func_'):
-                            name = node_id[5:]  # Remove 'func_' prefix
-                            color = 'lightcoral'
-                        elif node_id.startswith('class_'):
-                            name = node_id[6:]  # Remove 'class_' prefix
-                            color = 'lightgreen'
-                        else:
-                            name = node_id
-                            color = 'lightblue'
-                        
-                        node_text.append(name)
-                        node_colors.append(color)
-                
-                node_trace = go.Scatter(x=node_x, y=node_y, mode='markers+text',
-                                       marker=dict(size=15, color=node_colors,
-                                                 line=dict(width=1, color='black')),
-                                       text=node_text, textposition="middle center",
-                                       hoverinfo='text')
-                
-                fig = go.Figure(data=[edge_trace, node_trace],
-                               layout=go.Layout(
-                                   title=f'Internal Structure - {file_info.name}',
-                                   showlegend=False,
-                                   hovermode='closest',
-                                   margin=dict(b=20,l=5,r=5,t=40),
-                                   xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                                   yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)
-                               ))
-                
-                file_maps[file_info.name] = fig
+            fig.add_trace(go.Scatter(
+                x=[pkg['functions']],
+                y=[pkg['loc']],
+                mode='markers+text',
+                marker=dict(
+                    size=max(20, min(120, pkg['files'] * 8)),
+                    color=color_val,
+                    colorscale='Viridis',
+                    opacity=0.8,
+                    line=dict(width=2, color='black'),
+                    colorbar=dict(title="Average Complexity")
+                ),
+                text=[pkg['package'].split('.')[-1]],  # Just the last part
+                textposition="middle center",
+                textfont=dict(size=10, color='white'),
+                hovertemplate=
+                    "<b>%{text}</b><br>" +
+                    "Full Package: " + pkg['package'] + "<br>" +
+                    "Files: " + str(pkg['files']) + "<br>" +
+                    "Functions: %{x}<br>" +
+                    "Lines of Code: %{y}<br>" +
+                    "Classes: " + str(pkg['classes']) + "<br>" +
+                    "Java Files: " + str(pkg['java_files']) + "<br>" +
+                    "Kotlin Files: " + str(pkg['kotlin_files']) + "<br>" +
+                    "Importance: " + f"{pkg['importance']:.1f}<br>" +
+                    "Complexity: " + f"{pkg['complexity']:.1f}" +
+                    "<extra></extra>",
+                showlegend=False
+            ))
         
-        return file_maps
-    
-    def create_data_flow_map(self) -> go.Figure:
-        """Create Map 3: Data and logic flow through the app"""
-        # This is a high-level conceptual map based on AAPS architecture
-        # You would customize this based on actual analysis
-        
-        flow_steps = [
-            "CGM Data Input",
-            "Blood Glucose Processing",
-            "IOB Calculation", 
-            "COB Calculation",
-            "Algorithm Decision",
-            "Basal/Bolus Adjustment",
-            "Pump Communication",
-            "Loop Execution",
-            "Data Logging",
-            "UI Update"
-        ]
-        
-        G = nx.DiGraph()
-        
-        # Add sequential flow
-        for i in range(len(flow_steps) - 1):
-            G.add_edge(flow_steps[i], flow_steps[i + 1])
-        
-        # Add some feedback loops
-        G.add_edge("Data Logging", "Blood Glucose Processing")
-        G.add_edge("Loop Execution", "CGM Data Input")
-        
-        pos = nx.spring_layout(G, k=2, iterations=50)
-        
-        edge_x, edge_y = [], []
-        for edge in G.edges():
-            x0, y0 = pos[edge[0]]
-            x1, y1 = pos[edge[1]]
-            edge_x.extend([x0, x1, None])
-            edge_y.extend([y0, y1, None])
-        
-        edge_trace = go.Scatter(x=edge_x, y=edge_y, mode='lines',
-                               line=dict(width=3, color='blue'))
-        
-        node_x, node_y, node_text = [], [], []
-        for node in G.nodes():
-            x, y = pos[node]
-            node_x.append(x)
-            node_y.append(y)
-            node_text.append(node)
-        
-        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers+text',
-                               marker=dict(size=30, color='orange',
-                                         line=dict(width=2, color='darkorange')),
-                               text=node_text, textposition="middle center")
-        
-        fig = go.Figure(data=[edge_trace, node_trace],
-                       layout=go.Layout(title='AAPS EatingNow - Data Flow Map',
-                                       showlegend=False))
+        fig.update_layout(
+            title='AAPS EatingNow - Package Hierarchy Analysis<br><sub>Bubble size = file count, Color = complexity, Position = functions vs LOC</sub>',
+            xaxis_title='Number of Functions',
+            yaxis_title='Lines of Code',
+            hovermode='closest',
+            plot_bgcolor='white',
+            width=1200,
+            height=800
+        )
         
         return fig
-
-class Neo4jRAGDatabase:
-    """Neo4j database for storing project knowledge"""
     
-    def __init__(self, uri: str, user: str, password: str):
-        self.driver = GraphDatabase.driver(uri, auth=(user, password))
+    def _create_complexity_heatmap(self):
+        """Create complexity heatmap"""
+        # Get top complex files
+        top_complex = sorted(self.files_data.values(), key=lambda x: x.complexity_score, reverse=True)[:50]
+        
+        # Create simple bar chart instead of heatmap for better compatibility
+        fig = go.Figure(data=[
+            go.Bar(
+                x=[f.complexity_score for f in top_complex],
+                y=[f.name[:30] + '...' if len(f.name) > 30 else f.name for f in top_complex],
+                orientation='h',
+                marker=dict(
+                    color=[f.importance_score for f in top_complex],
+                    colorscale='Reds',
+                    colorbar=dict(title="Importance Score")
+                ),
+                hovertemplate='<b>%{y}</b><br>Complexity: %{x:.1f}<br>Importance: %{marker.color:.1f}<extra></extra>'
+            )
+        ])
+        
+        fig.update_layout(
+            title='AAPS EatingNow - Complexity Analysis<br><sub>Top 50 Most Complex Files</sub>',
+            xaxis_title='Complexity Score',
+            yaxis_title='Files',
+            height=1200,
+            width=1000
+        )
+        
+        return fig
     
-    def close(self):
-        self.driver.close()
+    def _create_filetype_analysis(self):
+        """Create file type analysis"""
+        # Separate Java and Kotlin files
+        java_files = [f for f in self.files_data.values() if f.file_type == 'java']
+        kotlin_files = [f for f in self.files_data.values() if f.file_type == 'kotlin']
+        
+        # Create subplots
+        fig = make_subplots(
+            rows=2, cols=2,
+            subplot_titles=('Lines of Code Distribution', 'Function Count Distribution', 
+                          'Importance Score Distribution', 'Complexity Distribution'),
+            specs=[[{"secondary_y": False}, {"secondary_y": False}],
+                   [{"secondary_y": False}, {"secondary_y": False}]]
+        )
+        
+        # LOC distribution
+        fig.add_trace(go.Histogram(x=[f.lines_of_code for f in java_files], name='Java LOC', opacity=0.7), row=1, col=1)
+        fig.add_trace(go.Histogram(x=[f.lines_of_code for f in kotlin_files], name='Kotlin LOC', opacity=0.7), row=1, col=1)
+        
+        # Function count distribution
+        fig.add_trace(go.Histogram(x=[len(f.functions) for f in java_files], name='Java Functions', opacity=0.7), row=1, col=2)
+        fig.add_trace(go.Histogram(x=[len(f.functions) for f in kotlin_files], name='Kotlin Functions', opacity=0.7), row=1, col=2)
+        
+        # Importance distribution
+        fig.add_trace(go.Histogram(x=[f.importance_score for f in java_files], name='Java Importance', opacity=0.7), row=2, col=1)
+        fig.add_trace(go.Histogram(x=[f.importance_score for f in kotlin_files], name='Kotlin Importance', opacity=0.7), row=2, col=1)
+        
+        # Complexity distribution
+        fig.add_trace(go.Histogram(x=[f.complexity_score for f in java_files], name='Java Complexity', opacity=0.7), row=2, col=2)
+        fig.add_trace(go.Histogram(x=[f.complexity_score for f in kotlin_files], name='Kotlin Complexity', opacity=0.7), row=2, col=2)
+        
+        fig.update_layout(
+            title='AAPS EatingNow - File Type Analysis<br><sub>Java vs Kotlin Comparison</sub>',
+            height=800,
+            width=1200
+        )
+        
+        return fig
     
-    def clear_database(self):
-        """Clear all nodes and relationships"""
-        with self.driver.session() as session:
-            session.run("MATCH (n) DETACH DELETE n")
-    
-    def populate_from_project(self, project: ProjectStructure):
-        """Populate Neo4j with project structure"""
-        with self.driver.session() as session:
-            # Create file nodes
-            for file_path, file_info in project.files.items():
-                session.run("""
-                    CREATE (f:File {
-                        name: $name,
-                        path: $path,
-                        file_type: $file_type,
-                        lines_of_code: $loc,
-                        function_count: $func_count,
-                        class_count: $class_count
-                    })
-                """, name=file_info.name, path=file_info.path, 
-                    file_type=file_info.file_type, loc=file_info.lines_of_code,
-                    func_count=len(file_info.functions), class_count=len(file_info.classes))
-                
-                # Create function nodes
-                for func_name in file_info.functions:
-                    session.run("""
-                        MATCH (f:File {path: $file_path})
-                        CREATE (fn:Function {name: $func_name})
-                        CREATE (f)-[:CONTAINS]->(fn)
-                    """, file_path=file_info.path, func_name=func_name)
-                
-                # Create class nodes
-                for class_name in file_info.classes:
-                    session.run("""
-                        MATCH (f:File {path: $file_path})
-                        CREATE (c:Class {name: $class_name})
-                        CREATE (f)-[:CONTAINS]->(c)
-                    """, file_path=file_info.path, class_name=class_name)
+    def _create_advanced_file_explorer(self):
+        """Create advanced file explorer table"""
+        # Prepare comprehensive data
+        file_list = []
+        for file_data in self.files_data.values():
+            # Count connections if call graph available
+            incoming = outgoing = 0
+            if NETWORKX_AVAILABLE and self.call_graph:
+                incoming = len([edge for edge in self.call_graph.edges() if edge[1] == file_data.name])
+                outgoing = len([edge for edge in self.call_graph.edges() if edge[0] == file_data.name])
             
-            # Create call relationships
-            for file_path, calls in project.call_graph.items():
-                for call in calls:
-                    session.run("""
-                        MATCH (f1:File {path: $caller_path})
-                        MATCH (f2:File) WHERE ANY(func IN f2.functions WHERE func = $callee_func)
-                        CREATE (f1)-[:CALLS {function: $function_name, line: $line_num, context: $context}]->(f2)
-                    """, caller_path=call.caller, callee_func=call.function_name,
-                        function_name=call.function_name, line_num=call.line_number, context=call.context)
+            file_list.append({
+                'name': file_data.name,
+                'package': file_data.package,
+                'type': file_data.file_type,
+                'loc': file_data.lines_of_code,
+                'functions': len(file_data.functions),
+                'classes': len(file_data.classes),
+                'imports': len(file_data.imports),
+                'calls_in': incoming,
+                'calls_out': outgoing,
+                'importance': round(file_data.importance_score, 2),
+                'complexity': round(file_data.complexity_score, 2),
+                'file_size': file_data.file_size,
+                'path': file_data.path
+            })
+        
+        # Sort by importance
+        file_list.sort(key=lambda x: x['importance'], reverse=True)
+        
+        # Create interactive table
+        fig = go.Figure(data=[go.Table(
+            header=dict(
+                values=['File Name', 'Package', 'Type', 'LOC', 'Functions', 'Classes', 'Imports', 
+                       'Calls In', 'Calls Out', 'Importance', 'Complexity', 'Size (KB)'],
+                fill_color='lightblue',
+                align='left',
+                font=dict(size=12, color='black'),
+                height=40
+            ),
+            cells=dict(
+                values=[
+                    [f['name'] for f in file_list],
+                    [f['package'] for f in file_list],
+                    [f['type'] for f in file_list],
+                    [f['loc'] for f in file_list],
+                    [f['functions'] for f in file_list],
+                    [f['classes'] for f in file_list],
+                    [f['imports'] for f in file_list],
+                    [f['calls_in'] for f in file_list],
+                    [f['calls_out'] for f in file_list],
+                    [f['importance'] for f in file_list],
+                    [f['complexity'] for f in file_list],
+                    [round(f['file_size']/1024, 1) for f in file_list]
+                ],
+                fill_color='white',
+                align='left',
+                font=dict(size=10),
+                height=30
+            )
+        )])
+        
+        fig.update_layout(
+            title='AAPS EatingNow - Advanced File Explorer<br><sub>Complete file analysis - sortable and searchable</sub>',
+            height=1000,
+            width=1600
+        )
+        
+        return fig
     
-    def query_project_info(self, query: str) -> List[Dict]:
-        """Query project information using Cypher"""
-        with self.driver.session() as session:
-            result = session.run(query)
-            return [record.data() for record in result]
+    def populate_neo4j_high_performance(self, uri: str, user: str, password: str):
+        """High-performance Neo4j population with large batches"""
+        if not NEO4J_AVAILABLE:
+            logger.warning("Neo4j driver not available, skipping database population")
+            return
+        
+        logger.info("Populating Neo4j with high-performance settings...")
+        
+        # Configure Neo4j driver for high performance
+        driver = GraphDatabase.driver(
+            uri, 
+            auth=(user, password),
+            max_connection_lifetime=3600,
+            max_connection_pool_size=100,
+            connection_acquisition_timeout=60,
+            encrypted=False
+        )
+        
+        start_time = time.time()
+        
+        with driver.session() as session:
+            # Clear existing data
+            logger.info("Clearing existing data...")
+            session.run("MATCH (n) DETACH DELETE n")
+            
+            # Create file nodes in large batches
+            logger.info("Creating file nodes...")
+            file_batch = []
+            
+            for file_data in self.files_data.values():
+                file_batch.append({
+                    'name': file_data.name,
+                    'path': file_data.path,
+                    'file_type': file_data.file_type,
+                    'loc': file_data.lines_of_code,
+                    'func_count': len(file_data.functions),
+                    'class_count': len(file_data.classes),
+                    'import_count': len(file_data.imports),
+                    'functions': file_data.functions,
+                    'classes': file_data.classes,
+                    'imports': file_data.imports,
+                    'package': file_data.package,
+                    'importance': file_data.importance_score,
+                    'complexity': file_data.complexity_score,
+                    'file_size': file_data.file_size
+                })
+                
+                if len(file_batch) >= NEO4J_BATCH_SIZE:
+                    session.run("""
+                        UNWIND $batch AS file
+                        CREATE (f:File {
+                            name: file.name,
+                            path: file.path,
+                            file_type: file.file_type,
+                            lines_of_code: file.loc,
+                            function_count: file.func_count,
+                            class_count: file.class_count,
+                            import_count: file.import_count,
+                            functions: file.functions,
+                            classes: file.classes,
+                            imports: file.imports,
+                            package: file.package,
+                            importance_score: file.importance,
+                            complexity_score: file.complexity,
+                            file_size: file.file_size
+                        })
+                    """, batch=file_batch)
+                    logger.info(f"Created {len(file_batch)} file nodes...")
+                    file_batch = []
+            
+            # Process remaining files
+            if file_batch:
+                session.run("""
+                    UNWIND $batch AS file
+                    CREATE (f:File {
+                        name: file.name,
+                        path: file.path,
+                        file_type: file.file_type,
+                        lines_of_code: file.loc,
+                        function_count: file.func_count,
+                        class_count: file.class_count,
+                        import_count: file.import_count,
+                        functions: file.functions,
+                        classes: file.classes,
+                        imports: file.imports,
+                        package: file.package,
+                        importance_score: file.importance,
+                        complexity_score: file.complexity,
+                        file_size: file.file_size
+                    })
+                """, batch=file_batch)
+            
+            # Create function and class nodes in batches
+            logger.info("Creating function and class nodes...")
+            function_batch = []
+            class_batch = []
+            
+            for file_data in self.files_data.values():
+                for function_name in file_data.functions:
+                    function_batch.append({
+                        'file_path': file_data.path,
+                        'function_name': function_name
+                    })
+                    
+                    if len(function_batch) >= NEO4J_BATCH_SIZE:
+                        session.run("""
+                            UNWIND $batch AS item
+                            MATCH (f:File {path: item.file_path})
+                            CREATE (fn:Function {name: item.function_name})
+                            CREATE (f)-[:CONTAINS]->(fn)
+                        """, batch=function_batch)
+                        function_batch = []
+                
+                for class_name in file_data.classes:
+                    class_batch.append({
+                        'file_path': file_data.path,
+                        'class_name': class_name
+                    })
+                    
+                    if len(class_batch) >= NEO4J_BATCH_SIZE:
+                        session.run("""
+                            UNWIND $batch AS item
+                            MATCH (f:File {path: item.file_path})
+                            CREATE (c:Class {name: item.class_name})
+                            CREATE (f)-[:CONTAINS]->(c)
+                        """, batch=class_batch)
+                        class_batch = []
+            
+            # Process remaining functions and classes
+            if function_batch:
+                session.run("""
+                    UNWIND $batch AS item
+                    MATCH (f:File {path: item.file_path})
+                    CREATE (fn:Function {name: item.function_name})
+                    CREATE (f)-[:CONTAINS]->(fn)
+                """, batch=function_batch)
+            
+            if class_batch:
+                session.run("""
+                    UNWIND $batch AS item
+                    MATCH (f:File {path: item.file_path})
+                    CREATE (c:Class {name: item.class_name})
+                    CREATE (f)-[:CONTAINS]->(c)
+                """, batch=class_batch)
+            
+            # Create CALLS relationships
+            logger.info("Creating CALLS relationships...")
+            calls_batch = []
+            calls_created = 0
+            
+            if NETWORKX_AVAILABLE and self.call_graph:
+                # Use call graph if available
+                for source, target, data in self.call_graph.edges(data=True):
+                    calls_batch.append({
+                        'source': source,
+                        'target': target,
+                        'weight': data.get('weight', 1),
+                        'calls': data.get('calls', 1)
+                    })
+                    
+                    if len(calls_batch) >= NEO4J_BATCH_SIZE:
+                        session.run("""
+                            UNWIND $batch AS call
+                            MATCH (f1:File {name: call.source})
+                            MATCH (f2:File {name: call.target})
+                            CREATE (f1)-[:CALLS {
+                                weight: call.weight,
+                                call_count: call.calls
+                            }]->(f2)
+                        """, batch=calls_batch)
+                        calls_created += len(calls_batch)
+                        logger.info(f"Created {calls_created} CALLS relationships...")
+                        calls_batch = []
+            else:
+                # Create simple CALLS relationships
+                for file_data in self.files_data.values():
+                    for call in file_data.function_calls[:5]:  # Limit to first 5 calls per file
+                        target_files = self.function_to_files.get(call['function'], set())
+                        for target_file in list(target_files)[:2]:  # Max 2 targets per call
+                            if target_file != file_data.name:
+                                calls_batch.append({
+                                    'source': file_data.name,
+                                    'target': target_file,
+                                    'weight': 1,
+                                    'calls': 1
+                                })
+                                
+                                if len(calls_batch) >= NEO4J_BATCH_SIZE:
+                                    session.run("""
+                                        UNWIND $batch AS call
+                                        MATCH (f1:File {name: call.source})
+                                        MATCH (f2:File {name: call.target})
+                                        CREATE (f1)-[:CALLS {
+                                            weight: call.weight,
+                                            call_count: call.calls
+                                        }]->(f2)
+                                    """, batch=calls_batch)
+                                    calls_created += len(calls_batch)
+                                    calls_batch = []
+            
+            # Process remaining calls
+            if calls_batch:
+                session.run("""
+                    UNWIND $batch AS call
+                    MATCH (f1:File {name: call.source})
+                    MATCH (f2:File {name: call.target})
+                    CREATE (f1)-[:CALLS {
+                        weight: call.weight,
+                        call_count: call.calls
+                    }]->(f2)
+                """, batch=calls_batch)
+                calls_created += len(calls_batch)
+            
+            # Verify the database
+            result = session.run("MATCH (f:File) RETURN count(f) as count")
+            file_count = result.single()["count"]
+            
+            result = session.run("MATCH (fn:Function) RETURN count(fn) as count")
+            function_count = result.single()["count"]
+            
+            result = session.run("MATCH (c:Class) RETURN count(c) as count")
+            class_count = result.single()["count"]
+            
+            result = session.run("MATCH ()-[c:CALLS]->() RETURN count(c) as count")
+            calls_count = result.single()["count"]
+            
+            population_time = time.time() - start_time
+            
+            logger.info(f"Database populated in {population_time:.2f} seconds:")
+            logger.info(f"  - {file_count} File nodes")
+            logger.info(f"  - {function_count} Function nodes")
+            logger.info(f"  - {class_count} Class nodes")
+            logger.info(f"  - {calls_count} CALLS relationships")
+        
+        driver.close()
+
+
+def analyze_kotlin_file(file_path: Path) -> FileData:
+    """Analyze a Kotlin file with comprehensive extraction"""
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        file_size = len(content)
+        lines = content.splitlines()
+        loc = len(lines)
+        
+        # Extract package
+        package = extract_package_name(content, file_path)
+        
+        # Enhanced function extraction for Kotlin
+        function_patterns = [
+            r'(?:private|public|protected|internal)?\s*(?:suspend\s+)?fun\s+(\w+)\s*\(',
+            r'(?:private|public|protected|internal)?\s*(?:inline\s+)?(?:suspend\s+)?fun\s+(\w+)\s*\(',
+            r'val\s+(\w+)\s*=\s*\{',  # Lambda properties
+            r'var\s+(\w+)\s*=\s*\{'   # Lambda properties
+        ]
+        
+        functions = set()
+        for pattern in function_patterns:
+            matches = re.finditer(pattern, content, re.MULTILINE)
+            for match in matches:
+                func_name = match.group(1)
+                if func_name and func_name[0].islower():  # Functions start with lowercase
+                    functions.add(func_name)
+        
+        # Extract classes, objects, interfaces, enums
+        class_patterns = [
+            r'(?:private|public|protected|internal)?\s*(?:abstract\s+)?(?:data\s+)?class\s+(\w+)',
+            r'(?:private|public|protected|internal)?\s*interface\s+(\w+)',
+            r'(?:private|public|protected|internal)?\s*enum\s+class\s+(\w+)',
+            r'(?:private|public|protected|internal)?\s*object\s+(\w+)',
+            r'(?:private|public|protected|internal)?\s*sealed\s+class\s+(\w+)'
+        ]
+        
+        classes = set()
+        for pattern in class_patterns:
+            matches = re.finditer(pattern, content, re.MULTILINE)
+            for match in matches:
+                classes.add(match.group(1))
+        
+        # Extract imports
+        import_pattern = r'import\s+([\w.]+(?:\.\*)?)'
+        imports = list(set(re.findall(import_pattern, content)))
+        
+        # Enhanced function call extraction for Kotlin
+        function_calls = []
+        call_patterns = [
+            r'(\w+)\.(\w+)\s*\(',  # object.method()
+            r'this\.(\w+)\s*\(',   # this.method()
+            r'super\.(\w+)\s*\(',  # super.method()
+            r'(\w+)::(\w+)',       # method references
+            r'\b(\w+)\s*\('        # direct calls
+        ]
+        
+        for i, line in enumerate(lines):
+            clean_line = line.strip()
+            if not clean_line or clean_line.startswith('//') or clean_line.startswith('/*'):
+                continue
+            
+            for pattern in call_patterns:
+                matches = re.finditer(pattern, line)
+                for match in matches:
+                    if len(match.groups()) == 2:
+                        obj, func = match.groups()
+                        if func not in ['if', 'for', 'while', 'when', 'try', 'catch', 'return', 'throw']:
+                            function_calls.append({
+                                'function': func,
+                                'object': obj,
+                                'line': i + 1,
+                                'context': clean_line[:300],
+                                'type': 'method_call'
+                            })
+                    else:
+                        func = match.group(1)
+                        if func not in ['if', 'for', 'while', 'when', 'try', 'catch', 'return', 'throw', 'println', 'print']:
+                            function_calls.append({
+                                'function': func,
+                                'object': None,
+                                'line': i + 1,
+                                'context': clean_line[:300],
+                                'type': 'direct_call'
+                            })
+        
+        # Calculate complexity score
+        complexity_indicators = [
+            len(re.findall(r'\bif\b', content)),
+            len(re.findall(r'\bfor\b', content)),
+            len(re.findall(r'\bwhile\b', content)),
+            len(re.findall(r'\bwhen\b', content)),
+            len(re.findall(r'\btry\b', content)),
+            len(re.findall(r'\bcatch\b', content)),
+        ]
+        complexity_score = sum(complexity_indicators) + len(function_calls) * 0.1
+        
+        return FileData(
+            name=file_path.name,
+            path=str(file_path),
+            functions=list(functions),
+            classes=list(classes),
+            imports=imports,
+            lines_of_code=loc,
+            file_type='kotlin',
+            function_calls=function_calls,
+            package=package,
+            complexity_score=complexity_score,
+            file_size=file_size
+        )
+        
+    except Exception as e:
+        logger.error(f"Error analyzing Kotlin file {file_path}: {e}")
+        return None
+
+
+def analyze_java_file(file_path: Path) -> FileData:
+    """Analyze a Java file with comprehensive extraction"""
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        file_size = len(content)
+        lines = content.splitlines()
+        loc = len(lines)
+        
+        # Extract package
+        package = extract_package_name(content, file_path)
+        
+        # Enhanced method extraction
+        method_patterns = [
+            r'(?:public|private|protected|static|\s)*\s+(?:synchronized\s+)?(?:final\s+)?[\w<>\[\]]+\s+(\w+)\s*\([^)]*\)\s*(?:throws\s+[\w,\s]+)?\s*\{',
+            r'(?:public|private|protected)\s+(\w+)\s*\([^)]*\)\s*\{',  # Constructors
+        ]
+        
+        functions = set()
+        for pattern in method_patterns:
+            matches = re.finditer(pattern, content, re.MULTILINE)
+            for match in matches:
+                func_name = match.group(1)
+                if func_name and func_name[0].islower():  # Methods start with lowercase
+                    functions.add(func_name)
+        
+        # Extract classes, interfaces, enums
+        class_patterns = [
+            r'(?:public|private|protected)?\s*(?:abstract\s+)?(?:final\s+)?class\s+(\w+)',
+            r'(?:public|private|protected)?\s*interface\s+(\w+)',
+            r'(?:public|private|protected)?\s*enum\s+(\w+)',
+            r'(?:public|private|protected)?\s*@interface\s+(\w+)'  # Annotations
+        ]
+        
+        classes = set()
+        for pattern in class_patterns:
+            matches = re.finditer(pattern, content, re.MULTILINE)
+            for match in matches:
+                classes.add(match.group(1))
+        
+        # Extract imports
+        import_pattern = r'import\s+(?:static\s+)?([\w.]+(?:\.\*)?);'
+        imports = list(set(re.findall(import_pattern, content)))
+        
+        # Enhanced function call extraction
+        function_calls = []
+        call_patterns = [
+            r'(\w+)\.(\w+)\s*\(',  # object.method()
+            r'this\.(\w+)\s*\(',   # this.method()
+            r'super\.(\w+)\s*\(',  # super.method()
+            r'(\w+)::(\w+)',       # method references
+            r'\b(\w+)\s*\('        # direct calls
+        ]
+        
+        for i, line in enumerate(lines):
+            clean_line = line.strip()
+            if not clean_line or clean_line.startswith('//') or clean_line.startswith('/*'):
+                continue
+            
+            for pattern in call_patterns:
+                matches = re.finditer(pattern, line)
+                for match in matches:
+                    if len(match.groups()) == 2:
+                        obj, func = match.groups()
+                        if func not in ['if', 'for', 'while', 'switch', 'try', 'catch', 'new', 'return', 'throw']:
+                            function_calls.append({
+                                'function': func,
+                                'object': obj,
+                                'line': i + 1,
+                                'context': clean_line[:300],
+                                'type': 'method_call'
+                            })
+                    else:
+                        func = match.group(1)
+                        if func not in ['if', 'for', 'while', 'switch', 'try', 'catch', 'new', 'return', 'throw', 'System', 'String', 'Integer']:
+                            function_calls.append({
+                                'function': func,
+                                'object': None,
+                                'line': i + 1,
+                                'context': clean_line[:300],
+                                'type': 'direct_call'
+                            })
+        
+        # Calculate complexity score
+        complexity_indicators = [
+            len(re.findall(r'\bif\b', content)),
+            len(re.findall(r'\bfor\b', content)),
+            len(re.findall(r'\bwhile\b', content)),
+            len(re.findall(r'\btry\b', content)),
+            len(re.findall(r'\bcatch\b', content)),
+            len(re.findall(r'\bswitch\b', content)),
+        ]
+        complexity_score = sum(complexity_indicators) + len(function_calls) * 0.1
+        
+        return FileData(
+            name=file_path.name,
+            path=str(file_path),
+            functions=list(functions),
+            classes=list(classes),
+            imports=imports,
+            lines_of_code=loc,
+            file_type='java',
+            function_calls=function_calls,
+            package=package,
+            complexity_score=complexity_score,
+            file_size=file_size
+        )
+        
+    except Exception as e:
+        logger.error(f"Error analyzing Java file {file_path}: {e}")
+        return None
+
+
+def analyze_file_batch(file_paths: List[Path]) -> List[FileData]:
+    """Analyze a batch of files"""
+    results = []
+    for file_path in file_paths:
+        try:
+            if file_path.suffix == '.java':
+                result = analyze_java_file(file_path)
+            elif file_path.suffix == '.kt':
+                result = analyze_kotlin_file(file_path)
+            else:
+                continue
+            
+            if result:
+                results.append(result)
+                
+        except Exception as e:
+            logger.error(f"Failed to analyze {file_path}: {e}")
+    
+    return results
+
 
 def main():
-    """Main execution function"""
-    # Configuration
-    REPO_URL = "https://github.com/dicko72/AAPS-EatingNow.git"
+    """Main function - unleash the full power!"""
     NEO4J_URI = "bolt://localhost:7687"
     NEO4J_USER = "neo4j"
-    NEO4J_PASSWORD = "password"  # Change this to your Neo4j password
+    NEO4J_PASSWORD = "password"  # Change this to your password
     
-    # Initialize analyzer
-    analyzer = AAPSProjectAnalyzer(REPO_URL)
+    print("🚀 AAPS High-Performance Analyzer")
+    print("💪 Utilizing 384GB RAM and 96 cores for maximum performance!")
+    print("="*80)
     
-    # Analyze project
-    logger.info("Starting project analysis...")
-    if not analyzer.analyze_project():
-        logger.error("Failed to analyze project")
+    analyzer = HighPerformanceAnalyzer()
+    
+    # Run full parallel analysis
+    start_time = time.time()
+    
+    if not analyzer.analyze_project_parallel():
+        logger.error("Project analysis failed")
         return
     
-    # Create mind maps (limit internal maps for large projects)
-    logger.info("Creating mind maps...")
+    # Build comprehensive call graph
+    analyzer.build_comprehensive_call_graph()
     
-    # Map 1: File interactions
-    try:
-        file_map = analyzer.create_file_interaction_map()
-        pyo.plot(file_map, filename='aaps_file_interactions.html', auto_open=False)
-        logger.info("Created file interaction map: aaps_file_interactions.html")
-    except Exception as e:
-        logger.error(f"Failed to create file interaction map: {e}")
+    # Create all visualizations
+    analyzer.create_comprehensive_visualizations()
     
-    # Map 2: Internal file structures (limit to manageable number)
+    # Save comprehensive analysis data
     try:
-        internal_maps = analyzer.create_file_internal_maps()
+        logger.info("Saving comprehensive analysis data...")
         
-        # If too many files, only create maps for the largest ones
-        if len(internal_maps) > 50:
-            logger.info(f"Too many files ({len(internal_maps)}), creating maps for top 50 largest files only")
-            # Sort by complexity and take top 50
-            sorted_files = sorted(analyzer.project.files.items(), 
-                                key=lambda x: len(x[1].functions) + len(x[1].classes), 
-                                reverse=True)[:50]
-            internal_maps = {info.name: internal_maps[info.name] 
-                           for _, info in sorted_files 
-                           if info.name in internal_maps}
+        # Calculate advanced statistics
+        total_files = len(analyzer.files_data)
+        java_files = len([f for f in analyzer.files_data.values() if f.file_type == 'java'])
+        kotlin_files = len([f for f in analyzer.files_data.values() if f.file_type == 'kotlin'])
+        total_functions = sum(len(f.functions) for f in analyzer.files_data.values())
+        total_classes = sum(len(f.classes) for f in analyzer.files_data.values())
+        total_loc = sum(f.lines_of_code for f in analyzer.files_data.values())
+        total_imports = sum(len(f.imports) for f in analyzer.files_data.values())
         
-        for file_name, fig in internal_maps.items():
-            try:
-                filename = f"aaps_internal_{file_name.replace('.', '_').replace('/', '_')}.html"
-                pyo.plot(fig, filename=filename, auto_open=False)
-            except Exception as e:
-                logger.error(f"Failed to create internal map for {file_name}: {e}")
-                
-        logger.info(f"Created {len(internal_maps)} internal structure maps")
-    except Exception as e:
-        logger.error(f"Failed to create internal maps: {e}")
-    
-    # Map 3: Data flow
-    try:
-        flow_map = analyzer.create_data_flow_map()
-        pyo.plot(flow_map, filename='aaps_data_flow.html', auto_open=False)
-        logger.info("Created data flow map: aaps_data_flow.html")
-    except Exception as e:
-        logger.error(f"Failed to create data flow map: {e}")
-    
-    # Populate Neo4j database
-    try:
-        logger.info("Populating Neo4j database...")
-        db = Neo4jRAGDatabase(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
-        db.clear_database()
-        db.populate_from_project(analyzer.project)
+        # Network statistics
+        network_stats = {}
+        if NETWORKX_AVAILABLE and analyzer.call_graph:
+            network_stats = {
+                'nodes': len(analyzer.call_graph.nodes()),
+                'edges': len(analyzer.call_graph.edges()),
+                'density': nx.density(analyzer.call_graph),
+                'average_clustering': nx.average_clustering(analyzer.call_graph),
+                'number_connected_components': nx.number_weakly_connected_components(analyzer.call_graph)
+            }
         
-        # Example queries
-        logger.info("Running sample queries...")
+        # Top files by various metrics
+        by_importance = sorted(analyzer.files_data.values(), key=lambda x: x.importance_score, reverse=True)[:50]
+        by_complexity = sorted(analyzer.files_data.values(), key=lambda x: x.complexity_score, reverse=True)[:50]
+        by_loc = sorted(analyzer.files_data.values(), key=lambda x: x.lines_of_code, reverse=True)[:50]
+        by_functions = sorted(analyzer.files_data.values(), key=lambda x: len(x.functions), reverse=True)[:50]
         
-        # Find files with most functions
-        result = db.query_project_info("""
-            MATCH (f:File)
-            RETURN f.name as filename, f.function_count as functions
-            ORDER BY f.function_count DESC
-            LIMIT 10
-        """)
+        # Package analysis
+        packages = defaultdict(list)
+        for f in analyzer.files_data.values():
+            packages[f.package].append(f)
         
-        print("\nFiles with most functions:")
-        for record in result:
-            print(f"  {record['filename']}: {record['functions']} functions")
+        package_stats = []
+        for package, files in packages.items():
+            if len(files) > 1:
+                package_stats.append({
+                    'package': package,
+                    'file_count': len(files),
+                    'total_loc': sum(f.lines_of_code for f in files),
+                    'total_functions': sum(len(f.functions) for f in files),
+                    'avg_importance': sum(f.importance_score for f in files) / len(files),
+                    'avg_complexity': sum(f.complexity_score for f in files) / len(files)
+                })
         
-        # Find most called functions
-        result = db.query_project_info("""
-            MATCH (f1:File)-[c:CALLS]->(f2:File)
-            RETURN c.function as function_name, count(*) as call_count
-            ORDER BY call_count DESC
-            LIMIT 10
-        """)
+        package_stats.sort(key=lambda x: x['avg_importance'], reverse=True)
         
-        print("\nMost called functions:")
-        for record in result:
-            print(f"  {record['function_name']}: {record['call_count']} calls")
-        
-        db.close()
-        logger.info("Neo4j database populated successfully")
-        
-    except Exception as e:
-        logger.error(f"Failed to connect to Neo4j: {e}")
-        logger.info("Make sure Neo4j is running and credentials are correct")
-        logger.info("You can skip Neo4j and still use the HTML visualizations")
-    
-    # Save project structure as JSON for further analysis
-    try:
-        # Limit the JSON output to avoid huge files
-        limited_files = {}
-        for path, info in list(analyzer.project.files.items())[:500]:  # Limit to first 500 files
-            limited_files[path] = asdict(info)
-        
-        project_data = {
-            'files': limited_files,
-            'summary': {
-                'total_files': len(analyzer.project.files),
-                'total_functions': sum(len(info.functions) for info in analyzer.project.files.values()),
-                'total_classes': sum(len(info.classes) for info in analyzer.project.files.values()),
-                'total_loc': sum(info.lines_of_code for info in analyzer.project.files.values()),
-                'files_in_export': len(limited_files)
+        # Create comprehensive export
+        comprehensive_data = {
+            'analysis_metadata': {
+                'total_analysis_time_seconds': time.time() - start_time,
+                'files_processed': total_files,
+                'workers_used': MAX_WORKERS,
+                'memory_limit_gb': MAX_MEMORY_USAGE / (1024**3),
+                'neo4j_batch_size': NEO4J_BATCH_SIZE
+            },
+            'project_summary': {
+                'total_files': total_files,
+                'java_files': java_files,
+                'kotlin_files': kotlin_files,
+                'total_functions': total_functions,
+                'total_classes': total_classes,
+                'total_lines_of_code': total_loc,
+                'total_imports': total_imports,
+                'packages': len(packages)
+            },
+            'network_analysis': network_stats,
+            'top_files': {
+                'by_importance': [{'name': f.name, 'package': f.package, 'score': f.importance_score, 'type': f.file_type} for f in by_importance],
+                'by_complexity': [{'name': f.name, 'package': f.package, 'score': f.complexity_score, 'type': f.file_type} for f in by_complexity],
+                'by_loc': [{'name': f.name, 'package': f.package, 'loc': f.lines_of_code, 'type': f.file_type} for f in by_loc],
+                'by_functions': [{'name': f.name, 'package': f.package, 'functions': len(f.functions), 'type': f.file_type} for f in by_functions]
+            },
+            'package_analysis': package_stats[:30],
+            'file_type_comparison': {
+                'java': {
+                    'count': java_files,
+                    'avg_loc': sum(f.lines_of_code for f in analyzer.files_data.values() if f.file_type == 'java') / max(java_files, 1),
+                    'avg_functions': sum(len(f.functions) for f in analyzer.files_data.values() if f.file_type == 'java') / max(java_files, 1),
+                    'avg_importance': sum(f.importance_score for f in analyzer.files_data.values() if f.file_type == 'java') / max(java_files, 1)
+                },
+                'kotlin': {
+                    'count': kotlin_files,
+                    'avg_loc': sum(f.lines_of_code for f in analyzer.files_data.values() if f.file_type == 'kotlin') / max(kotlin_files, 1),
+                    'avg_functions': sum(len(f.functions) for f in analyzer.files_data.values() if f.file_type == 'kotlin') / max(kotlin_files, 1),
+                    'avg_importance': sum(f.importance_score for f in analyzer.files_data.values() if f.file_type == 'kotlin') / max(kotlin_files, 1)
+                }
             }
         }
         
-        with open('aaps_project_analysis.json', 'w') as f:
-            json.dump(project_data, f, indent=2, default=str)
+        with open('aaps_comprehensive_analysis.json', 'w') as f:
+            json.dump(comprehensive_data, f, indent=2, default=str)
         
-        logger.info("Analysis complete! Generated files:")
-        logger.info("  - aaps_file_interactions.html (Map 1)")
-        logger.info(f"  - aaps_internal_*.html (Map 2 - {len(internal_maps) if 'internal_maps' in locals() else 0} files)")
-        logger.info("  - aaps_data_flow.html (Map 3)")
-        logger.info("  - aaps_project_analysis.json (Raw data)")
-        if 'db' in locals():
-            logger.info("  - Neo4j database populated (if connected)")
-        
-        # Print summary statistics
-        print(f"\n=== ANALYSIS SUMMARY ===")
-        print(f"Total files analyzed: {project_data['summary']['total_files']}")
-        print(f"Total functions: {project_data['summary']['total_functions']}")
-        print(f"Total classes: {project_data['summary']['total_classes']}")
-        print(f"Total lines of code: {project_data['summary']['total_loc']}")
+        logger.info("✅ Created: aaps_comprehensive_analysis.json")
         
     except Exception as e:
-        logger.error(f"Failed to save project analysis: {e}")
+        logger.error(f"Failed to save comprehensive analysis: {e}")
+    
+    # Populate Neo4j with high performance
+    try:
+        analyzer.populate_neo4j_high_performance(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
+        logger.info("✅ Neo4j database populated with high performance!")
+        
+        # Test with utilities
+        logger.info("Testing with neo4j utilities...")
+        import subprocess
+        import sys
+        
+        result = subprocess.run([sys.executable, "memory_optimized_utilities.py"], 
+                              capture_output=True, text=True, timeout=120)
+        
+        if result.returncode == 0:
+            logger.info("✅ Neo4j utilities test successful!")
+        else:
+            logger.warning("⚠️ Neo4j utilities had issues but database should work")
+            
+    except Exception as e:
+        logger.error(f"Neo4j population failed: {e}")
+    
+    # Final summary
+    total_time = time.time() - start_time
+    print("\n" + "="*80)
+    print("🎉 HIGH-PERFORMANCE ANALYSIS COMPLETE!")
+    print("="*80)
+    print(f"⏱️  Total Time: {total_time:.2f} seconds")
+    print(f"📊 Files Processed: {len(analyzer.files_data):,}")
+    print(f"💻 Workers Used: {MAX_WORKERS}")
+    if NETWORKX_AVAILABLE and analyzer.call_graph:
+        print(f"🔗 Call Graph: {len(analyzer.call_graph.nodes):,} nodes, {len(analyzer.call_graph.edges):,} edges")
+    else:
+        print("🔗 Call Graph: Not available (NetworkX not installed)")
+    print(f"🧠 Memory Utilized: Up to {MAX_MEMORY_USAGE/(1024**3):.0f}GB")
+    print("\n📋 Generated Files:")
+    print("  🌐 aaps_full_network.html - Complete network visualization")
+    print("  📦 aaps_package_hierarchy.html - Package hierarchy analysis")
+    print("  🔥 aaps_complexity_heatmap.html - Complexity heatmap")
+    print("  📊 aaps_filetype_analysis.html - Java vs Kotlin analysis")
+    print("  🔍 aaps_advanced_explorer.html - Advanced file explorer")
+    print("  📈 aaps_comprehensive_analysis.json - Complete analysis data")
+    print("  🗄️  Neo4j database - High-performance graph database")
+    print("\n💡 Performance Optimizations Applied:")
+    print(f"  • {MAX_WORKERS}-core parallel processing")
+    print(f"  • {NEO4J_BATCH_SIZE:,}-record Neo4j batches")
+    print(f"  • {MAX_MEMORY_USAGE/(1024**3):.0f}GB memory allocation")
+    print("  • Enhanced function call detection")
+    print("  • Comprehensive relationship mapping")
+    print("="*80)
+
 
 if __name__ == "__main__":
     main()

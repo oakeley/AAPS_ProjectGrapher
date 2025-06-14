@@ -1,0 +1,262 @@
+{
+  "database_stats": {
+    "files": 3214,
+    "functions": 14209,
+    "calls": 323852
+  },
+  "most_important_files": [
+    {
+      "filename": "Parser.kt",
+      "package": "info.nightscout.comboctl.parser",
+      "importance": 363.0642676646605,
+      "functions": 9,
+      "loc": 1819
+    },
+    {
+      "filename": "Pump.kt",
+      "package": "info.nightscout.comboctl.main",
+      "importance": 344.4011547059697,
+      "functions": 39,
+      "loc": 3587
+    },
+    {
+      "filename": "PersistenceLayerImpl.kt",
+      "package": "app.aaps.database.persistence",
+      "importance": 272.1341307428163,
+      "functions": 172,
+      "loc": 1803
+    },
+    {
+      "filename": "EventData.kt",
+      "package": "app.aaps.core.interfaces.rx.weardata",
+      "importance": 216.624835274905,
+      "functions": 8,
+      "loc": 417
+    },
+    {
+      "filename": "ApplicationLayer.kt",
+      "package": "info.nightscout.comboctl.base",
+      "importance": 214.96220376324789,
+      "functions": 39,
+      "loc": 1879
+    },
+    {
+      "filename": "SmsCommunicatorPlugin.kt",
+      "package": "app.aaps.plugins.main.general.smsCommunicator",
+      "importance": 205.45483254470128,
+      "functions": 32,
+      "loc": 1316
+    },
+    {
+      "filename": "DataHandlerMobile.kt",
+      "package": "app.aaps.plugins.sync.wear.wearintegration",
+      "importance": 201.18209157552548,
+      "functions": 38,
+      "loc": 1855
+    },
+    {
+      "filename": "ComboV2Plugin.kt",
+      "package": "info.nightscout.pump.combov2",
+      "importance": 199.57561225486427,
+      "functions": 62,
+      "loc": 2443
+    },
+    {
+      "filename": "OmnipodDashPumpPlugin.kt",
+      "package": "app.aaps.pump.omnipod.dash",
+      "importance": 180.88927041317118,
+      "functions": 69,
+      "loc": 1589
+    },
+    {
+      "filename": "OmnipodErosPumpPlugin.java",
+      "package": "app.aaps.pump.omnipod.eros",
+      "importance": 175.63821067554187,
+      "functions": 69,
+      "loc": 1159
+    }
+  ],
+  "most_connected_files": [
+    {
+      "filename": "DanaHistoryActivity.kt",
+      "package": "app.aaps.pump.dana.activities",
+      "outgoing": 557,
+      "incoming": 798,
+      "total_connections": 1355
+    },
+    {
+      "filename": "DiaconnG8HistoryActivity.kt",
+      "package": "app.aaps.pump.diaconn.activities",
+      "outgoing": 551,
+      "incoming": 798,
+      "total_connections": 1349
+    },
+    {
+      "filename": "AutomationPlugin.kt",
+      "package": "app.aaps.plugins.automation",
+      "outgoing": 606,
+      "incoming": 743,
+      "total_connections": 1349
+    },
+    {
+      "filename": "GarminSimulatorClient.kt",
+      "package": "app.aaps.plugins.sync.garmin",
+      "outgoing": 420,
+      "incoming": 850,
+      "total_connections": 1270
+    },
+    {
+      "filename": "PatchState.kt",
+      "package": "app.aaps.pump.eopatch.vo",
+      "outgoing": 236,
+      "incoming": 1000,
+      "total_connections": 1236
+    },
+    {
+      "filename": "BasalProfile.kt",
+      "package": "app.aaps.pump.insight.descriptors",
+      "outgoing": 261,
+      "incoming": 968,
+      "total_connections": 1229
+    },
+    {
+      "filename": "BasalProfile.kt",
+      "package": "info.nightscout.comboctl.main",
+      "outgoing": 261,
+      "incoming": 968,
+      "total_connections": 1229
+    },
+    {
+      "filename": "BasalProfile.kt",
+      "package": "app.aaps.pump.medtronic.data.dto",
+      "outgoing": 261,
+      "incoming": 968,
+      "total_connections": 1229
+    },
+    {
+      "filename": "PairingPIN.kt",
+      "package": "info.nightscout.comboctl.base",
+      "outgoing": 197,
+      "incoming": 926,
+      "total_connections": 1123
+    },
+    {
+      "filename": "ErosPodHistoryActivity.kt",
+      "package": "app.aaps.pump.omnipod.eros.ui",
+      "outgoing": 442,
+      "incoming": 678,
+      "total_connections": 1120
+    }
+  ],
+  "central_functions": [
+    {
+      "function_name": null,
+      "call_count": 323852
+    }
+  ],
+  "package_overview": [
+    {
+      "package": "app.aaps.database.persistence",
+      "file_count": 2,
+      "total_functions": 173,
+      "total_loc": 1928,
+      "avg_importance": 144.61
+    },
+    {
+      "package": "app.aaps.pump.omnipod.eros.driver.manager",
+      "file_count": 2,
+      "total_functions": 153,
+      "total_loc": 1858,
+      "avg_importance": 113.98
+    },
+    {
+      "package": "app.aaps.pump.medtrum.services",
+      "file_count": 2,
+      "total_functions": 71,
+      "total_loc": 1646,
+      "avg_importance": 104.63
+    },
+    {
+      "package": "app.aaps.pump.omnipod.dash",
+      "file_count": 2,
+      "total_functions": 69,
+      "total_loc": 1594,
+      "avg_importance": 104.05
+    },
+    {
+      "package": "app.aaps.pump.danars.services",
+      "file_count": 2,
+      "total_functions": 57,
+      "total_loc": 1424,
+      "avg_importance": 95.72
+    },
+    {
+      "package": "app.aaps.plugins.sync.wear.wearintegration",
+      "file_count": 3,
+      "total_functions": 51,
+      "total_loc": 2122,
+      "avg_importance": 91.66
+    },
+    {
+      "package": "app.aaps.pump.omnipod.eros",
+      "file_count": 2,
+      "total_functions": 71,
+      "total_loc": 1305,
+      "avg_importance": 88.44
+    },
+    {
+      "package": "app.aaps.pump.insight",
+      "file_count": 3,
+      "total_functions": 103,
+      "total_loc": 2233,
+      "avg_importance": 88.4
+    },
+    {
+      "package": "info.nightscout.comboctl.main",
+      "file_count": 7,
+      "total_functions": 114,
+      "total_loc": 6918,
+      "avg_importance": 87.71
+    },
+    {
+      "package": "app.aaps.plugins.aps.EN",
+      "file_count": 2,
+      "total_functions": 30,
+      "total_loc": 1783,
+      "avg_importance": 86.4
+    }
+  ],
+  "call_chains": [],
+  "isolated_files": [
+    {
+      "filename": "TestDisplayFrames.kt",
+      "package": "info.nightscout.comboctl.parser",
+      "functions": 1,
+      "loc": 12369
+    },
+    {
+      "filename": "Pattern.kt",
+      "package": "info.nightscout.comboctl.parser",
+      "functions": 0,
+      "loc": 2043
+    },
+    {
+      "filename": "PluginsListModule.kt",
+      "package": "app.aaps.di",
+      "functions": 68,
+      "loc": 505
+    },
+    {
+      "filename": "TitleStrings.kt",
+      "package": "info.nightscout.comboctl.parser",
+      "functions": 0,
+      "loc": 393
+    },
+    {
+      "filename": "ActionExtension.kt",
+      "package": "app.aaps.database.persistence.converters",
+      "functions": 0,
+      "loc": 189
+    }
+  ]
+}
