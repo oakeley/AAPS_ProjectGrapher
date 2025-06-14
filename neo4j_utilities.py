@@ -55,6 +55,16 @@ class AAPSDebugQueries:
             ORDER BY chain_length DESC
             LIMIT 50
             """
+            return self.execute_query(query, {"start_file": start_file})
+        else:
+            query = f"""
+            MATCH path = (start:File)-[:CALLS*1..{max_depth}]->(end:File)
+            WHERE start <> end
+            RETURN [node in nodes(path) | node.name] as dependency_chain,
+                   length(path) as chain_length
+            ORDER BY chain_length DESC
+            LIMIT 50
+            """
             return self.execute_query(query)
     
     def find_circular_dependencies(self) -> List[Dict]:
@@ -473,14 +483,4 @@ EXAMPLE_QUERIES = {
 }
 
 if __name__ == "__main__":
-    main()_length DESC
-            LIMIT 50
-            """
-            return self.execute_query(query, {"start_file": start_file})
-        else:
-            query = f"""
-            MATCH path = (start:File)-[:CALLS*1..{max_depth}]->(end:File)
-            WHERE start <> end
-            RETURN [node in nodes(path) | node.name] as dependency_chain,
-                   length(path) as chain_length
-            ORDER BY chain
+    main()
