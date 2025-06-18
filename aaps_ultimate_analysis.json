@@ -1,0 +1,869 @@
+{
+  "analysis_metadata": {
+    "timestamp": 1750245018.2772,
+    "total_ram_gb": 377.187198638916,
+    "available_ram_gb": 362.1539535522461,
+    "cpu_cores": 48,
+    "max_workers": 48,
+    "chunk_size": 181,
+    "repositories_analyzed": 3,
+    "total_files_processed": 9446
+  },
+  "repository_summaries": {
+    "EN_new": {
+      "file_count": 3214,
+      "total_loc": 313337,
+      "total_functions": 15108,
+      "total_classes": 4395,
+      "avg_importance": 33.37,
+      "top_files": [
+        {
+          "name": "PumpSync.kt",
+          "importance": 134.32,
+          "loc": 566,
+          "functions": 27,
+          "package": "app.aaps.core.interfaces.pump"
+        },
+        {
+          "name": "PumpManager.kt",
+          "importance": 122.52,
+          "loc": 476,
+          "functions": 9,
+          "package": "info.nightscout.comboctl.main"
+        },
+        {
+          "name": "Pump.kt",
+          "importance": 122.0,
+          "loc": 3587,
+          "functions": 42,
+          "package": "info.nightscout.comboctl.main"
+        },
+        {
+          "name": "Pump.kt",
+          "importance": 121.84,
+          "loc": 292,
+          "functions": 37,
+          "package": "app.aaps.core.interfaces.pump"
+        },
+        {
+          "name": "SmsCommunicatorPlugin.kt",
+          "importance": 121.4,
+          "loc": 1316,
+          "functions": 64,
+          "package": "app.aaps.plugins.main.general.smsCommunicator"
+        },
+        {
+          "name": "LoopPlugin.kt",
+          "importance": 120.32,
+          "loc": 856,
+          "functions": 31,
+          "package": "app.aaps.plugins.aps.loop"
+        },
+        {
+          "name": "ErosPodStateManager.java",
+          "importance": 120.0,
+          "loc": 1133,
+          "functions": 166,
+          "package": "app.aaps.pump.omnipod.eros.driver.manager"
+        },
+        {
+          "name": "OmnipodManager.java",
+          "importance": 117.5,
+          "loc": 725,
+          "functions": 37,
+          "package": "app.aaps.pump.omnipod.eros.driver.manager"
+        },
+        {
+          "name": "MedtronicPumpPlugin.kt",
+          "importance": 114.0,
+          "loc": 1245,
+          "functions": 55,
+          "package": "app.aaps.pump.medtronic"
+        },
+        {
+          "name": "MaintenancePlugin.kt",
+          "importance": 113.64,
+          "loc": 287,
+          "functions": 10,
+          "package": "app.aaps.plugins.configuration.maintenance"
+        },
+        {
+          "name": "MedtrumService.kt",
+          "importance": 112.6,
+          "loc": 1162,
+          "functions": 66,
+          "package": "app.aaps.pump.medtrum.services"
+        },
+        {
+          "name": "PumpType.kt",
+          "importance": 110.98,
+          "loc": 524,
+          "functions": 17,
+          "package": "app.aaps.core.data.pump.defs"
+        },
+        {
+          "name": "OmnipodDashPumpPlugin.kt",
+          "importance": 110.0,
+          "loc": 1589,
+          "functions": 70,
+          "package": "app.aaps.pump.omnipod.dash"
+        },
+        {
+          "name": "OmnipodErosPumpPlugin.java",
+          "importance": 110.0,
+          "loc": 1159,
+          "functions": 70,
+          "package": "app.aaps.pump.omnipod.eros"
+        },
+        {
+          "name": "PumpIO.kt",
+          "importance": 110.0,
+          "loc": 2082,
+          "functions": 43,
+          "package": "info.nightscout.comboctl.base"
+        },
+        {
+          "name": "PluginBase.kt",
+          "importance": 108.02,
+          "loc": 131,
+          "functions": 17,
+          "package": "app.aaps.core.interfaces.plugin"
+        },
+        {
+          "name": "OmnipodDashManagerImpl.kt",
+          "importance": 108.0,
+          "loc": 790,
+          "functions": 33,
+          "package": "app.aaps.pump.omnipod.dash.driver"
+        },
+        {
+          "name": "PersistenceLayer.kt",
+          "importance": 108.0,
+          "loc": 1386,
+          "functions": 173,
+          "package": "app.aaps.core.interfaces.db"
+        },
+        {
+          "name": "InsightConnectionService.kt",
+          "importance": 107.56,
+          "loc": 748,
+          "functions": 50,
+          "package": "app.aaps.pump.insight.connection_service"
+        },
+        {
+          "name": "IobCobCalculatorPlugin.kt",
+          "importance": 106.82,
+          "loc": 671,
+          "functions": 25,
+          "package": "app.aaps.plugins.main.iob.iobCobCalculator"
+        }
+      ]
+    },
+    "EN_old": {
+      "file_count": 3024,
+      "total_loc": 289730,
+      "total_functions": 14335,
+      "total_classes": 4205,
+      "avg_importance": 33.0,
+      "top_files": [
+        {
+          "name": "PumpSync.kt",
+          "importance": 131.32,
+          "loc": 566,
+          "functions": 27,
+          "package": "app.aaps.core.interfaces.pump"
+        },
+        {
+          "name": "ErosPodStateManager.java",
+          "importance": 125.4,
+          "loc": 1132,
+          "functions": 166,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.manager"
+        },
+        {
+          "name": "OmnipodManager.java",
+          "importance": 122.86,
+          "loc": 723,
+          "functions": 37,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.manager"
+        },
+        {
+          "name": "PumpManager.kt",
+          "importance": 119.52,
+          "loc": 476,
+          "functions": 9,
+          "package": "info.nightscout.comboctl.main"
+        },
+        {
+          "name": "MedtronicPumpPlugin.kt",
+          "importance": 119.4,
+          "loc": 1239,
+          "functions": 55,
+          "package": "info.nightscout.androidaps.plugins.pump.medtronic"
+        },
+        {
+          "name": "Pump.kt",
+          "importance": 119.0,
+          "loc": 3582,
+          "functions": 42,
+          "package": "info.nightscout.comboctl.main"
+        },
+        {
+          "name": "Pump.kt",
+          "importance": 118.84,
+          "loc": 292,
+          "functions": 37,
+          "package": "app.aaps.core.interfaces.pump"
+        },
+        {
+          "name": "SmsCommunicatorPlugin.kt",
+          "importance": 118.4,
+          "loc": 1300,
+          "functions": 63,
+          "package": "app.aaps.plugins.main.general.smsCommunicator"
+        },
+        {
+          "name": "OmnipodErosPumpPlugin.java",
+          "importance": 115.4,
+          "loc": 1152,
+          "functions": 70,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros"
+        },
+        {
+          "name": "OmnipodDashPumpPlugin.kt",
+          "importance": 115.4,
+          "loc": 1599,
+          "functions": 71,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.dash"
+        },
+        {
+          "name": "InsightConnectionService.java",
+          "importance": 114.84,
+          "loc": 842,
+          "functions": 63,
+          "package": "info.nightscout.androidaps.plugins.pump.insight.connection_service"
+        },
+        {
+          "name": "OmnipodDashManagerImpl.kt",
+          "importance": 113.4,
+          "loc": 790,
+          "functions": 33,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.dash.driver"
+        },
+        {
+          "name": "LoopPlugin.kt",
+          "importance": 111.9,
+          "loc": 785,
+          "functions": 26,
+          "package": "app.aaps.plugins.aps.loop"
+        },
+        {
+          "name": "AapsOmnipodErosManager.java",
+          "importance": 110.2,
+          "loc": 1017,
+          "functions": 80,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros.manager"
+        },
+        {
+          "name": "MedtrumService.kt",
+          "importance": 109.6,
+          "loc": 1147,
+          "functions": 66,
+          "package": "info.nightscout.pump.medtrum.services"
+        },
+        {
+          "name": "EopatchPumpPlugin.kt",
+          "importance": 107.62,
+          "loc": 611,
+          "functions": 35,
+          "package": "info.nightscout.androidaps.plugins.pump.eopatch"
+        },
+        {
+          "name": "PumpIO.kt",
+          "importance": 107.0,
+          "loc": 2058,
+          "functions": 42,
+          "package": "info.nightscout.comboctl.base"
+        },
+        {
+          "name": "OmnipodDashPodStateManagerImpl.kt",
+          "importance": 106.32,
+          "loc": 786,
+          "functions": 27,
+          "package": "info.nightscout.androidaps.plugins.pump.omnipod.dash.driver.pod.state"
+        },
+        {
+          "name": "PluginBase.kt",
+          "importance": 104.84,
+          "loc": 122,
+          "functions": 16,
+          "package": "app.aaps.core.interfaces.plugin"
+        },
+        {
+          "name": "PumpType.kt",
+          "importance": 104.84,
+          "loc": 592,
+          "functions": 7,
+          "package": "app.aaps.core.interfaces.pump.defs"
+        }
+      ]
+    },
+    "AAPS_source": {
+      "file_count": 3208,
+      "total_loc": 310836,
+      "total_functions": 15030,
+      "total_classes": 4388,
+      "avg_importance": 35.87,
+      "top_files": [
+        {
+          "name": "PumpSync.kt",
+          "importance": 137.32,
+          "loc": 566,
+          "functions": 27,
+          "package": "app.aaps.core.interfaces.pump"
+        },
+        {
+          "name": "PumpManager.kt",
+          "importance": 125.52,
+          "loc": 476,
+          "functions": 9,
+          "package": "info.nightscout.comboctl.main"
+        },
+        {
+          "name": "Pump.kt",
+          "importance": 125.0,
+          "loc": 3587,
+          "functions": 42,
+          "package": "info.nightscout.comboctl.main"
+        },
+        {
+          "name": "Pump.kt",
+          "importance": 124.84,
+          "loc": 292,
+          "functions": 37,
+          "package": "app.aaps.core.interfaces.pump"
+        },
+        {
+          "name": "SmsCommunicatorPlugin.kt",
+          "importance": 124.4,
+          "loc": 1328,
+          "functions": 65,
+          "package": "app.aaps.plugins.main.general.smsCommunicator"
+        },
+        {
+          "name": "LoopPlugin.kt",
+          "importance": 123.32,
+          "loc": 856,
+          "functions": 31,
+          "package": "app.aaps.plugins.aps.loop"
+        },
+        {
+          "name": "ErosPodStateManager.java",
+          "importance": 123.0,
+          "loc": 1133,
+          "functions": 166,
+          "package": "app.aaps.pump.omnipod.eros.driver.manager"
+        },
+        {
+          "name": "OmnipodManager.java",
+          "importance": 120.5,
+          "loc": 725,
+          "functions": 37,
+          "package": "app.aaps.pump.omnipod.eros.driver.manager"
+        },
+        {
+          "name": "MedtronicPumpPlugin.kt",
+          "importance": 117.0,
+          "loc": 1245,
+          "functions": 55,
+          "package": "app.aaps.pump.medtronic"
+        },
+        {
+          "name": "MaintenancePlugin.kt",
+          "importance": 116.64,
+          "loc": 287,
+          "functions": 10,
+          "package": "app.aaps.plugins.configuration.maintenance"
+        },
+        {
+          "name": "MedtrumService.kt",
+          "importance": 115.6,
+          "loc": 1162,
+          "functions": 66,
+          "package": "app.aaps.pump.medtrum.services"
+        },
+        {
+          "name": "PumpType.kt",
+          "importance": 113.98,
+          "loc": 524,
+          "functions": 17,
+          "package": "app.aaps.core.data.pump.defs"
+        },
+        {
+          "name": "OmnipodDashPumpPlugin.kt",
+          "importance": 113.0,
+          "loc": 1589,
+          "functions": 70,
+          "package": "app.aaps.pump.omnipod.dash"
+        },
+        {
+          "name": "OmnipodErosPumpPlugin.java",
+          "importance": 113.0,
+          "loc": 1159,
+          "functions": 70,
+          "package": "app.aaps.pump.omnipod.eros"
+        },
+        {
+          "name": "PumpIO.kt",
+          "importance": 113.0,
+          "loc": 2082,
+          "functions": 43,
+          "package": "info.nightscout.comboctl.base"
+        },
+        {
+          "name": "PluginBase.kt",
+          "importance": 111.02,
+          "loc": 131,
+          "functions": 17,
+          "package": "app.aaps.core.interfaces.plugin"
+        },
+        {
+          "name": "PersistenceLayer.kt",
+          "importance": 111.0,
+          "loc": 1386,
+          "functions": 173,
+          "package": "app.aaps.core.interfaces.db"
+        },
+        {
+          "name": "OmnipodDashManagerImpl.kt",
+          "importance": 111.0,
+          "loc": 790,
+          "functions": 33,
+          "package": "app.aaps.pump.omnipod.dash.driver"
+        },
+        {
+          "name": "InsightConnectionService.kt",
+          "importance": 110.56,
+          "loc": 748,
+          "functions": 50,
+          "package": "app.aaps.pump.insight.connection_service"
+        },
+        {
+          "name": "IobCobCalculatorPlugin.kt",
+          "importance": 109.82,
+          "loc": 671,
+          "functions": 25,
+          "package": "app.aaps.plugins.main.iob.iobCobCalculator"
+        }
+      ]
+    }
+  },
+  "global_summary": {
+    "total_files": 9446,
+    "total_loc": 913903,
+    "total_functions": 44473,
+    "total_classes": 12988
+  },
+  "top_files_global": [
+    {
+      "name": "PumpSync.kt",
+      "repository": "AAPS_source",
+      "importance": 137.32,
+      "loc": 566,
+      "functions": 27,
+      "package": "app.aaps.core.interfaces.pump"
+    },
+    {
+      "name": "PumpSync.kt",
+      "repository": "EN_new",
+      "importance": 134.32,
+      "loc": 566,
+      "functions": 27,
+      "package": "app.aaps.core.interfaces.pump"
+    },
+    {
+      "name": "PumpSync.kt",
+      "repository": "EN_old",
+      "importance": 131.32,
+      "loc": 566,
+      "functions": 27,
+      "package": "app.aaps.core.interfaces.pump"
+    },
+    {
+      "name": "PumpManager.kt",
+      "repository": "AAPS_source",
+      "importance": 125.52,
+      "loc": 476,
+      "functions": 9,
+      "package": "info.nightscout.comboctl.main"
+    },
+    {
+      "name": "ErosPodStateManager.java",
+      "repository": "EN_old",
+      "importance": 125.4,
+      "loc": 1132,
+      "functions": 166,
+      "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.manager"
+    },
+    {
+      "name": "Pump.kt",
+      "repository": "AAPS_source",
+      "importance": 125.0,
+      "loc": 3587,
+      "functions": 42,
+      "package": "info.nightscout.comboctl.main"
+    },
+    {
+      "name": "Pump.kt",
+      "repository": "AAPS_source",
+      "importance": 124.84,
+      "loc": 292,
+      "functions": 37,
+      "package": "app.aaps.core.interfaces.pump"
+    },
+    {
+      "name": "SmsCommunicatorPlugin.kt",
+      "repository": "AAPS_source",
+      "importance": 124.4,
+      "loc": 1328,
+      "functions": 65,
+      "package": "app.aaps.plugins.main.general.smsCommunicator"
+    },
+    {
+      "name": "LoopPlugin.kt",
+      "repository": "AAPS_source",
+      "importance": 123.32,
+      "loc": 856,
+      "functions": 31,
+      "package": "app.aaps.plugins.aps.loop"
+    },
+    {
+      "name": "ErosPodStateManager.java",
+      "repository": "AAPS_source",
+      "importance": 123.0,
+      "loc": 1133,
+      "functions": 166,
+      "package": "app.aaps.pump.omnipod.eros.driver.manager"
+    },
+    {
+      "name": "OmnipodManager.java",
+      "repository": "EN_old",
+      "importance": 122.86,
+      "loc": 723,
+      "functions": 37,
+      "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.manager"
+    },
+    {
+      "name": "PumpManager.kt",
+      "repository": "EN_new",
+      "importance": 122.52,
+      "loc": 476,
+      "functions": 9,
+      "package": "info.nightscout.comboctl.main"
+    },
+    {
+      "name": "Pump.kt",
+      "repository": "EN_new",
+      "importance": 122.0,
+      "loc": 3587,
+      "functions": 42,
+      "package": "info.nightscout.comboctl.main"
+    },
+    {
+      "name": "Pump.kt",
+      "repository": "EN_new",
+      "importance": 121.84,
+      "loc": 292,
+      "functions": 37,
+      "package": "app.aaps.core.interfaces.pump"
+    },
+    {
+      "name": "SmsCommunicatorPlugin.kt",
+      "repository": "EN_new",
+      "importance": 121.4,
+      "loc": 1316,
+      "functions": 64,
+      "package": "app.aaps.plugins.main.general.smsCommunicator"
+    },
+    {
+      "name": "OmnipodManager.java",
+      "repository": "AAPS_source",
+      "importance": 120.5,
+      "loc": 725,
+      "functions": 37,
+      "package": "app.aaps.pump.omnipod.eros.driver.manager"
+    },
+    {
+      "name": "LoopPlugin.kt",
+      "repository": "EN_new",
+      "importance": 120.32,
+      "loc": 856,
+      "functions": 31,
+      "package": "app.aaps.plugins.aps.loop"
+    },
+    {
+      "name": "ErosPodStateManager.java",
+      "repository": "EN_new",
+      "importance": 120.0,
+      "loc": 1133,
+      "functions": 166,
+      "package": "app.aaps.pump.omnipod.eros.driver.manager"
+    },
+    {
+      "name": "PumpManager.kt",
+      "repository": "EN_old",
+      "importance": 119.52,
+      "loc": 476,
+      "functions": 9,
+      "package": "info.nightscout.comboctl.main"
+    },
+    {
+      "name": "MedtronicPumpPlugin.kt",
+      "repository": "EN_old",
+      "importance": 119.4,
+      "loc": 1239,
+      "functions": 55,
+      "package": "info.nightscout.androidaps.plugins.pump.medtronic"
+    },
+    {
+      "name": "Pump.kt",
+      "repository": "EN_old",
+      "importance": 119.0,
+      "loc": 3582,
+      "functions": 42,
+      "package": "info.nightscout.comboctl.main"
+    },
+    {
+      "name": "Pump.kt",
+      "repository": "EN_old",
+      "importance": 118.84,
+      "loc": 292,
+      "functions": 37,
+      "package": "app.aaps.core.interfaces.pump"
+    },
+    {
+      "name": "SmsCommunicatorPlugin.kt",
+      "repository": "EN_old",
+      "importance": 118.4,
+      "loc": 1300,
+      "functions": 63,
+      "package": "app.aaps.plugins.main.general.smsCommunicator"
+    },
+    {
+      "name": "OmnipodManager.java",
+      "repository": "EN_new",
+      "importance": 117.5,
+      "loc": 725,
+      "functions": 37,
+      "package": "app.aaps.pump.omnipod.eros.driver.manager"
+    },
+    {
+      "name": "MedtronicPumpPlugin.kt",
+      "repository": "AAPS_source",
+      "importance": 117.0,
+      "loc": 1245,
+      "functions": 55,
+      "package": "app.aaps.pump.medtronic"
+    },
+    {
+      "name": "MaintenancePlugin.kt",
+      "repository": "AAPS_source",
+      "importance": 116.64,
+      "loc": 287,
+      "functions": 10,
+      "package": "app.aaps.plugins.configuration.maintenance"
+    },
+    {
+      "name": "MedtrumService.kt",
+      "repository": "AAPS_source",
+      "importance": 115.6,
+      "loc": 1162,
+      "functions": 66,
+      "package": "app.aaps.pump.medtrum.services"
+    },
+    {
+      "name": "OmnipodErosPumpPlugin.java",
+      "repository": "EN_old",
+      "importance": 115.4,
+      "loc": 1152,
+      "functions": 70,
+      "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros"
+    },
+    {
+      "name": "OmnipodDashPumpPlugin.kt",
+      "repository": "EN_old",
+      "importance": 115.4,
+      "loc": 1599,
+      "functions": 71,
+      "package": "info.nightscout.androidaps.plugins.pump.omnipod.dash"
+    },
+    {
+      "name": "InsightConnectionService.java",
+      "repository": "EN_old",
+      "importance": 114.84,
+      "loc": 842,
+      "functions": 63,
+      "package": "info.nightscout.androidaps.plugins.pump.insight.connection_service"
+    },
+    {
+      "name": "MedtronicPumpPlugin.kt",
+      "repository": "EN_new",
+      "importance": 114.0,
+      "loc": 1245,
+      "functions": 55,
+      "package": "app.aaps.pump.medtronic"
+    },
+    {
+      "name": "PumpType.kt",
+      "repository": "AAPS_source",
+      "importance": 113.98,
+      "loc": 524,
+      "functions": 17,
+      "package": "app.aaps.core.data.pump.defs"
+    },
+    {
+      "name": "MaintenancePlugin.kt",
+      "repository": "EN_new",
+      "importance": 113.64,
+      "loc": 287,
+      "functions": 10,
+      "package": "app.aaps.plugins.configuration.maintenance"
+    },
+    {
+      "name": "OmnipodDashManagerImpl.kt",
+      "repository": "EN_old",
+      "importance": 113.4,
+      "loc": 790,
+      "functions": 33,
+      "package": "info.nightscout.androidaps.plugins.pump.omnipod.dash.driver"
+    },
+    {
+      "name": "OmnipodDashPumpPlugin.kt",
+      "repository": "AAPS_source",
+      "importance": 113.0,
+      "loc": 1589,
+      "functions": 70,
+      "package": "app.aaps.pump.omnipod.dash"
+    },
+    {
+      "name": "OmnipodErosPumpPlugin.java",
+      "repository": "AAPS_source",
+      "importance": 113.0,
+      "loc": 1159,
+      "functions": 70,
+      "package": "app.aaps.pump.omnipod.eros"
+    },
+    {
+      "name": "PumpIO.kt",
+      "repository": "AAPS_source",
+      "importance": 113.0,
+      "loc": 2082,
+      "functions": 43,
+      "package": "info.nightscout.comboctl.base"
+    },
+    {
+      "name": "MedtrumService.kt",
+      "repository": "EN_new",
+      "importance": 112.6,
+      "loc": 1162,
+      "functions": 66,
+      "package": "app.aaps.pump.medtrum.services"
+    },
+    {
+      "name": "LoopPlugin.kt",
+      "repository": "EN_old",
+      "importance": 111.9,
+      "loc": 785,
+      "functions": 26,
+      "package": "app.aaps.plugins.aps.loop"
+    },
+    {
+      "name": "PluginBase.kt",
+      "repository": "AAPS_source",
+      "importance": 111.02,
+      "loc": 131,
+      "functions": 17,
+      "package": "app.aaps.core.interfaces.plugin"
+    },
+    {
+      "name": "PersistenceLayer.kt",
+      "repository": "AAPS_source",
+      "importance": 111.0,
+      "loc": 1386,
+      "functions": 173,
+      "package": "app.aaps.core.interfaces.db"
+    },
+    {
+      "name": "OmnipodDashManagerImpl.kt",
+      "repository": "AAPS_source",
+      "importance": 111.0,
+      "loc": 790,
+      "functions": 33,
+      "package": "app.aaps.pump.omnipod.dash.driver"
+    },
+    {
+      "name": "PumpType.kt",
+      "repository": "EN_new",
+      "importance": 110.98,
+      "loc": 524,
+      "functions": 17,
+      "package": "app.aaps.core.data.pump.defs"
+    },
+    {
+      "name": "InsightConnectionService.kt",
+      "repository": "AAPS_source",
+      "importance": 110.56,
+      "loc": 748,
+      "functions": 50,
+      "package": "app.aaps.pump.insight.connection_service"
+    },
+    {
+      "name": "AapsOmnipodErosManager.java",
+      "repository": "EN_old",
+      "importance": 110.2,
+      "loc": 1017,
+      "functions": 80,
+      "package": "info.nightscout.androidaps.plugins.pump.omnipod.eros.manager"
+    },
+    {
+      "name": "OmnipodDashPumpPlugin.kt",
+      "repository": "EN_new",
+      "importance": 110.0,
+      "loc": 1589,
+      "functions": 70,
+      "package": "app.aaps.pump.omnipod.dash"
+    },
+    {
+      "name": "OmnipodErosPumpPlugin.java",
+      "repository": "EN_new",
+      "importance": 110.0,
+      "loc": 1159,
+      "functions": 70,
+      "package": "app.aaps.pump.omnipod.eros"
+    },
+    {
+      "name": "PumpIO.kt",
+      "repository": "EN_new",
+      "importance": 110.0,
+      "loc": 2082,
+      "functions": 43,
+      "package": "info.nightscout.comboctl.base"
+    },
+    {
+      "name": "IobCobCalculatorPlugin.kt",
+      "repository": "AAPS_source",
+      "importance": 109.82,
+      "loc": 671,
+      "functions": 25,
+      "package": "app.aaps.plugins.main.iob.iobCobCalculator"
+    },
+    {
+      "name": "MedtrumService.kt",
+      "repository": "EN_old",
+      "importance": 109.6,
+      "loc": 1147,
+      "functions": 66,
+      "package": "info.nightscout.pump.medtrum.services"
+    }
+  ]
+}
