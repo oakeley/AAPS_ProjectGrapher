@@ -166,14 +166,120 @@ Expected output:
 2025-06-18 18:47:29,080 - INFO - 📊 Source code stored for 9445 files
 2025-06-18 18:47:29,080 - INFO - 🗄️ Populating Neo4j with enhanced approach...
 2025-06-18 18:47:30,576 - INFO - 📊 Neo4j: Processed 9446 files...
-⏱️  Total Time: 4.16 seconds (0.1 minutes)
+2025-06-18 19:23:46,399 - INFO - ✅ Enhanced Neo4j populated: 9446 files, 9445 with source code, 949666 relationships
+2025-06-18 19:23:46,400 - INFO - 📊 Generating eating now visualizations...
+2025-06-18 19:23:46,496 - INFO - ✅ Created: aaps_enhanced_overview.html
+2025-06-18 19:23:46,529 - INFO - ✅ Created: aaps_enhanced_eating_now.html
+2025-06-18 19:23:46,529 - INFO - 🎉 Enhanced outputs generated!
+
+================================================================================
+🎉 ENHANCED ANALYSIS COMPLETE!
+🧠 FULL SOURCE CODE STORAGE + EATING NOW PRIORITIZATION
+================================================================================
+⏱️  Total Time: 2221.60 seconds (37.0 minutes)
+💾 RAM Used: 377.2GB total, 367.1GB available
+⚡ CPU Cores: 48, Workers: 48
 📊 Files Processed: 9,446
-🍽️ Eating Now Relevant Files: 7,139
-💾 Files with Source Code Stored: 9,445 (99.99% coverage)
-✅ Enhanced Neo4j populated: 9,446 files with full source code
+🍽️ Eating Now Relevant Files: 7,160
+💾 Files with Source Code Stored: 9,445
+🚀 Processing Speed: 4.3 files/second
+🧠 Storage Strategy: Full source code for ALL files
+
+📚 REPOSITORY BREAKDOWN (EATING NOW FOCUSED):
+  📦 EN_new:
+     Files: 3,214
+     Lines of Code: 313,337
+     Functions: 15,108
+     Avg Importance: 642.29
+     🍽️ Avg Eating Now Score: 349.88
+     🍽️ Eating Now Files: 3214
+     💾 Files with Source Code: 3214
+     🍽️ Top Eating Now File: TreatmentsBolusCarbsFragment.kt (score: 1944.0)
+  📦 EN_old:
+     Files: 3,024
+     Lines of Code: 289,730
+     Functions: 14,335
+     Avg Importance: 557.20
+     🍽️ Avg Eating Now Score: 301.65
+     🍽️ Eating Now Files: 3024
+     💾 Files with Source Code: 3023
+     🍽️ Top Eating Now File: TreatmentsBolusCarbsFragment.kt (score: 1894.0)
+  📦 AAPS_source:
+     Files: 3,208
+     Lines of Code: 310,836
+     Functions: 15,030
+     Avg Importance: 204.79
+     🍽️ Avg Eating Now Score: 99.14
+     🍽️ Eating Now Files: 922
+     💾 Files with Source Code: 3208
+     🍽️ Top Eating Now File: TreatmentsBolusCarbsFragment.kt (score: 1694.0)
+
+🍽️ TOP EATING NOW FILES (CRITICAL FOR PLUGIN DEVELOPMENT):
+    1.💾 TreatmentsBolusCarbsFragment.kt (EN_new)
+       Eating Now Score: 1944.0
+       Importance: 3983.5
+       Package: app.aaps.ui.activities.fragments
+       Has Source Code: Yes
+    2.💾 TreatmentsBolusCarbsFragment.kt (EN_old)
+       Eating Now Score: 1894.0
+       Importance: 3876.5
+       Package: app.aaps.ui.activities.fragments
+       Has Source Code: Yes
+    3.💾 TreatmentsBolusCarbsFragment.kt (AAPS_source)
+       Eating Now Score: 1694.0
+       Importance: 3466.5
+       Package: app.aaps.ui.activities.fragments
+       Has Source Code: Yes
+    4.💾 PersistenceLayer.kt (EN_new)
+       Eating Now Score: 1572.0
+       Importance: 3272.0
+       Package: app.aaps.core.interfaces.db
+       Has Source Code: Yes
+    5.💾 CarbsDao.kt (EN_old)
+       Eating Now Score: 1450.0
+       Importance: 2961.5
+       Package: app.aaps.database.impl.daos
+       Has Source Code: Yes
+    6.💾 CarbsDao.kt (EN_new)
+       Eating Now Score: 1420.0
+       Importance: 2911.3
+       Package: app.aaps.database.daos
+       Has Source Code: Yes
+    7.💾 PersistenceLayerImpl.kt (EN_new)
+       Eating Now Score: 1385.0
+       Importance: 2869.0
+       Package: app.aaps.database.persistence
+       Has Source Code: Yes
+       Key Snippets: 5
+    8.💾 BolusWizard.kt (EN_new)
+       Eating Now Score: 1384.0
+       Importance: 2874.4
+       Package: app.aaps.core.objects.wizard
+       Has Source Code: Yes
+
+💾 ENHANCED STORAGE STATISTICS:
+   Total Source Code Stored: 41,243,378 characters
+   Average Source per File: 4,367 chars
+   Storage Coverage: 9445/9446 files (100.0%)
+   Full Text Search: Enabled via Neo4j full-text index
+
+📁 GENERATED FILES:
+  📊 aaps_enhanced_analysis.json - Complete enhanced report with full source
+  🌐 aaps_enhanced_overview.html - Enhanced overview
+  🍽️ aaps_enhanced_eating_now.html - Eating now analysis
+  🗄️  Enhanced Neo4j database - With full source code storage and indexes
+
+💡 NEXT STEPS FOR EATING NOW PLUGIN DEVELOPMENT:
+  🔍 Explore data: python neo4j_utilities.py
+  🤖 Start RAG: python ollama_neo4j_rag.py
+  📊 Open visualizations
+  🍽️ All files now have full source code access
+  💾 Use full-text search for code exploration
+  🧠 Enhanced RAG with complete source code context
+================================================================================
 ```
 
-#### Step 2: Fix Database Indexes (if needed - shouldn't be if you did it at the start)
+#### Step 2: Fix Database Indexes Again (sorry)
 ```bash
 # Run the index fix to optimize database performance
 python neo4j_index_fix.py
