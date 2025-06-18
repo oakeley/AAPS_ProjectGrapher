@@ -5,8 +5,8 @@ This comprehensive analysis system provides deep insights into the AAPS (Android
 ## 🚀 System Overview
 
 The system analyzes three key repositories:
-- **EN_new** - Latest EatingNow variant (EN-MASTER-NEW branch) **🍽️ HIGHEST PRIORITY**
-- **EN_old** - Previous EatingNow variant (master branch) **🍽️ HIGH PRIORITY**
+- **EN_new** - Latest EatingNow variant (EN-MASTER-NEW branch) 
+- **EN_old** - Previous EatingNow variant (master branch) 
 - **AAPS_source** - Main AndroidAPS source code (nightscout/AndroidAPS)
 
 ## ✨ Enhanced Features (LATEST VERSION)
@@ -86,7 +86,7 @@ python docker_neo4j_setup.py
 python neo4j_quick_fix.py 
 ```
 
-**Step 3: After running the analyzer, fix indexes**
+**Step 3: Fix indexes**
 ```bash
 python neo4j_index_fix.py
 ```
@@ -98,7 +98,7 @@ python neo4j_index_fix.py
 ollama pull deepseek-r1:1.5b
 ```
 
-## 🚀 Quick Start (UPDATED PROCESS)
+## 🚀 Quick Start
 
 ### 1. Download All Analysis Scripts
 Save these enhanced scripts:
@@ -109,7 +109,7 @@ Save these enhanced scripts:
 
 ### 2. Run the Complete Enhanced Analysis
 
-#### Step 1: Enhanced Analysis with Full Source Code Storage
+#### Step 1: Populate Database with Full Source Code Storage for RAG queries
 ```bash
 # This will:
 # - Clone all 3 repositories in parallel
@@ -117,6 +117,13 @@ Save these enhanced scripts:
 # - Store COMPLETE source code for all files in Neo4j
 # - Generate enhanced visualizations with eating now priority
 # - Populate Neo4j database with full source code and metadata
+
+# Delete the old downloads
+rm -rf aaps_en_new
+rm -rf aaps_en_old
+rm -rf aaps_source
+
+# Populate the database with the newest versions of the repositories
 python aaps_analyzer.py
 ```
 
@@ -124,6 +131,41 @@ Expected output:
 ```
 🚀 AAPS ENHANCED MULTI-REPOSITORY ANALYZER
 🧠 FULL SOURCE CODE STORAGE + EATING NOW PRIORITIZATION
+💾 COMPLETE FILE INDEXING FOR MAXIMUM RAG PERFORMANCE
+================================================================================
+🖥️  System: 377.2GB RAM, 48 CPU cores
+⚡ Configuration: 48 workers, 183 files/chunk
+💾 Memory Target: 330.4GB (87.6%)
+🧠 Storage Strategy: Full source code for ALL files
+🍽️ Enhanced Features: Eating now scoring, full source storage, enhanced indexing
+================================================================================
+2025-06-18 18:46:44,928 - INFO - 🔄 Cloning EN_new...
+2025-06-18 18:46:44,928 - INFO - 🔄 Cloning EN_old...
+2025-06-18 18:46:44,929 - INFO - 🔄 Cloning AAPS_source...
+2025-06-18 18:46:49,801 - INFO - ✅ EN_old cloned successfully
+2025-06-18 18:47:13,625 - INFO - ✅ EN_new cloned successfully
+2025-06-18 18:47:25,264 - INFO - ✅ AAPS_source cloned successfully
+2025-06-18 18:47:25,265 - INFO - ✅ Successfully cloned 3/3 repositories
+2025-06-18 18:47:25,304 - INFO - 📁 EN_new: 3214 source files
+2025-06-18 18:47:25,345 - INFO - 📁 EN_old: 3024 source files
+2025-06-18 18:47:25,382 - INFO - 📁 AAPS_source: 3208 source files
+2025-06-18 18:47:25,382 - INFO - 🎯 Total files to process: 9446
+2025-06-18 18:47:26,578 - INFO - 🔥 Progress: 94.2% (8897/9446) | Memory: 2.9%
+2025-06-18 18:47:27,575 - INFO - 🔥 Progress: 96.1% (9080/9446) | Memory: 2.9%
+2025-06-18 18:47:27,781 - INFO - 🔥 Progress: 98.1% (9263/9446) | Memory: 3.0%
+2025-06-18 18:47:27,939 - INFO - 🔥 Progress: 100.0% (9446/9446) | Memory: 3.0%
+2025-06-18 18:47:27,967 - INFO - ✅ Enhanced analysis completed in 43.04 seconds
+2025-06-18 18:47:27,967 - INFO - 📊 Successfully processed 9446 files
+2025-06-18 18:47:27,967 - INFO - 🔗 Building function mappings and call graphs...
+2025-06-18 18:47:28,393 - INFO - 📊 EN_new call graph: 3107 nodes, 306979 edges
+2025-06-18 18:47:28,722 - INFO - 📊 EN_old call graph: 2945 nodes, 293318 edges
+2025-06-18 18:47:29,065 - INFO - 📊 AAPS_source call graph: 3101 nodes, 304461 edges
+2025-06-18 18:47:29,068 - INFO - 📈 Generating enhanced outputs...
+2025-06-18 18:47:29,068 - INFO - 📄 Generating enhanced JSON report...
+2025-06-18 18:47:29,080 - INFO - ✅ Saved: aaps_enhanced_analysis.json
+2025-06-18 18:47:29,080 - INFO - 📊 Source code stored for 9445 files
+2025-06-18 18:47:29,080 - INFO - 🗄️ Populating Neo4j with enhanced approach...
+2025-06-18 18:47:30,576 - INFO - 📊 Neo4j: Processed 9446 files...
 ⏱️  Total Time: 4.16 seconds (0.1 minutes)
 📊 Files Processed: 9,446
 🍽️ Eating Now Relevant Files: 7,139
@@ -131,7 +173,7 @@ Expected output:
 ✅ Enhanced Neo4j populated: 9,446 files with full source code
 ```
 
-#### Step 2: Fix Database Indexes
+#### Step 2: Fix Database Indexes (if needed - shouldn't be if you did it at the start)
 ```bash
 # Run the index fix to optimize database performance
 python neo4j_index_fix.py
@@ -204,7 +246,7 @@ New capabilities:
 
 ### 🌐 Interactive Visualizations
 1. **`aaps_enhanced_overview.html`** - Multi-repository overview with eating now metrics and source code indicators
-2. **`aaps_enhanced_eating_now.html`** - **Enhanced:** Eating now specific analysis with source code availability
+2. **`aaps_enhanced_eating_now.html`** - Eating now specific analysis with source code availability
 3. **Previous visualizations** - All original network analysis files still generated
 
 ### 🗄️ Enhanced Neo4j Knowledge Graph
@@ -232,11 +274,11 @@ New capabilities:
 - **Session tracking** - Summary of generated code at session end
 - **Template-based generation** - New code based on existing eating now patterns
 
-## 🔍 Using the Enhanced Analysis Tools
+## 🔍 Using the Analysis Tools
 
-### Enhanced Neo4j Database Exploration
+### Neo4j Database Exploration
 
-#### Interactive Explorer (Enhanced with Source Code)
+#### Interactive Explorer
 ```bash
 python neo4j_utilities.py
 
@@ -252,7 +294,7 @@ python neo4j_utilities.py
 🔍 Enhanced Explorer> examples "carb counting"  # Get code examples
 ```
 
-#### NEW: Direct Cypher Query Tool
+#### Direct Cypher Query Tool
 ```bash
 python cypher_query_tool.py
 
@@ -269,7 +311,7 @@ cypher> examples  # Show 10 example queries
 cypher> schema    # Show database schema
 ```
 
-#### Enhanced Neo4j Queries (Examples)
+#### Neo4j Cypher Queries (Examples)
 
 1. **Top eating now files with source code:**
 ```cypher
@@ -311,9 +353,9 @@ RETURN f1.name, f2.name, c.weight, f2.eating_now_score
 ORDER BY c.weight DESC, f2.eating_now_score DESC
 ```
 
-### Enhanced AI RAG System Usage
+### AI RAG System Usage
 
-#### Interactive Mode (Enhanced with Code Generation)
+#### Interactive Mode (with Code Generation)
 ```bash
 python ollama_neo4j_rag.py
 
@@ -332,7 +374,7 @@ python ollama_neo4j_rag.py
 🍽️ Ask about AAPS eating now: source <filename>  # View complete source code
 ```
 
-#### Command Line Mode (Enhanced)
+#### Command Line Mode
 ```bash
 # Single question with eating now focus and source code context
 python ollama_neo4j_rag.py --question "Create a bolus plugin based on EN_new templates with complete source code"
@@ -344,7 +386,7 @@ python ollama_neo4j_rag.py --question "Generate carb functions with source code"
 python ollama_neo4j_rag.py --cache-dir "./my_generated_code"
 ```
 
-## 💾 Database Export and Sharing (UPDATED)
+## 💾 Database Export and Sharing
 
 ### 🎯 Sharing Your Enhanced Database
 
@@ -437,16 +479,16 @@ if __name__ == "__main__":
 
 ### 📤 What to Share with Collaborators
 
-**Complete Enhanced Package:**
+**Complete Package:**
 1. **Enhanced database dump** (`aaps_enhanced_database.dump`) - ~100MB with full source code
 2. **All enhanced analysis scripts** (5 Python files)
 3. **Import instructions** (below)
 
 **Collaborator Import Instructions:**
 
-Create `ENHANCED_IMPORT_INSTRUCTIONS.md`:
+Create `IMPORT_INSTRUCTIONS.md`:
 ```markdown
-# Import Enhanced AAPS Database (Full Source Code)
+# Import AAPS Database (Full Source Code)
 
 ## Prerequisites
 - Docker installed
@@ -506,7 +548,7 @@ Create `ENHANCED_IMPORT_INSTRUCTIONS.md`:
 | JSON Export | 50-150MB | Eating now files with source code | ✅ Selective | ⭐⭐⭐⭐ |
 | Docker Image | 3-6GB | Complete environment with source | ✅ Complete | ⭐⭐ |
 
-**Recommended: Enhanced Database Dump** - Complete source code with optimized size
+**Recommended: Database Dump** - Complete source code with optimized size
 
 ## 🛠️ Configuration
 
@@ -519,7 +561,7 @@ NEO4J_PASSWORD = "password"
 ```
 
 ### Performance Tuning
-The enhanced analyzer automatically detects and uses:
+The analyzer automatically detects and uses:
 - **90% of available RAM** (configurable)
 - **All CPU cores** (configurable)
 - **Dynamic chunk sizing** based on system resources
@@ -546,7 +588,7 @@ REPOSITORIES = {
 
 ## 🔧 Advanced Usage
 
-### Enhanced Database Queries with Source Code
+### Database Queries with Source Code
 
 #### Using the Interactive Explorer
 ```python
@@ -587,7 +629,7 @@ results = cypher.execute_query("""
 cypher.format_results(results)
 ```
 
-#### Enhanced AI Integration with Full Source Code
+#### AI Integration with Full Source Code
 ```python
 from ollama_neo4j_rag import EnhancedAAPSRAGSystem
 
@@ -674,7 +716,7 @@ def analyze_code_patterns(repository: str = None) -> List[Dict]:
    CHUNK_SIZE = 50  # Reduce chunk size
    ```
 
-### Enhanced Performance Optimization
+### Performance Optimization
 
 1. **For Complete Source Code Storage:**
    ```python
@@ -694,7 +736,7 @@ def analyze_code_patterns(repository: str = None) -> List[Dict]:
    max_context_length = 20000  # Increase for more complete source code context
    ```
 
-## 📈 Enhanced System Scaling
+## 📈 System Scaling
 
 ### Small System (8GB RAM, 4 cores)
 ```
@@ -727,18 +769,18 @@ Expected Performance with Complete Source Code:
 - Full source code indexing and optimization
 ```
 
-## 🎯 Enhanced Best Practices
+## 🎯 Best Practices
 
-### 1. Enhanced Workflow (Complete Source Code)
+### 1. Workflow (Complete Source Code)
 ```bash
 # Recommended sequence for eating now development:
-1. python aaps_analyzer.py        # Complete enhanced analysis with full source
+1. python aaps_analyzer.py        # Complete analysis with full source
 2. python neo4j_index_fix.py     # Optimize database indexes
 3. python neo4j_utilities.py     # Explore eating now results interactively
    - Use 'eating' command to find top files
    - Use 'source <filename>' to view complete source code
    - Use 'templates' to find plugin patterns
-4. python cypher_query_tool.py   # Advanced database queries
+4. python cypher_query_tool.py   # Database queries
    - Run complex Cypher queries
    - Analyze source code patterns
    - Extract specific code examples
@@ -747,7 +789,7 @@ Expected Performance with Complete Source Code:
    - Use 'cache' command to see generated code
 ```
 
-### 2. Plugin Development Workflow (Enhanced)
+### 2. Plugin Development Workflow
 ```bash
 # For creating eating now plugins with complete source code:
 1. Ask: "What eating now files should I use as templates with complete source code?"
@@ -757,7 +799,7 @@ Expected Performance with Complete Source Code:
 5. Refine: Ask follow-up questions for specific functionality with source examples
 ```
 
-### 3. Enhanced Source Code Best Practices
+### 3. Source Code Best Practices
 - **Complete coverage**: 99.99% of files have source code stored and searchable
 - **Use eating now score > 100** for critical template files with guaranteed source access
 - **Search capabilities**: Full-text search with automatic property-based fallback
@@ -773,7 +815,7 @@ To extend the enhanced analysis system:
    - Add new critical functionality keywords
    - Enhance source code analysis patterns
 
-2. **Enhance AI Code Generation:**
+2. **AI Code Generation:**
    - Add more code detection patterns in `CodeCache`
    - Improve template matching algorithms in `find_eating_now_templates()`
    - Create specialized code generation prompts
@@ -797,7 +839,7 @@ To extend the enhanced analysis system:
 - **AAPS Documentation**: https://wiki.aaps.app
 - **NetworkX Graph Analysis**: https://networkx.org/documentation/
 
-## 🎉 What Makes This Enhanced System Unique
+## 🎉 What Makes This System Unique
 
 1. **Complete Source Code Storage**: ALL 9,400+ files have their complete source code stored and searchable
 2. **Eating Now Prioritization**: Massive scoring boosts for eating now functionality with real source code
@@ -805,6 +847,6 @@ To extend the enhanced analysis system:
 4. **AI Code Generation**: Creates working plugins based on complete source code templates
 5. **Automatic Code Caching**: Generated code saved with metadata and context for reuse
 6. **Property-Based Search Fallback**: Works even without full-text indexing
-7. **Enhanced Performance**: Source code storage with optimized indexing and chunking
+7. **Great Performance**: Source code storage with optimized indexing and chunking
 8. **Plugin Development Focus**: Specifically designed for eating now plugin creation with complete source access
 9. **99.99% Coverage
