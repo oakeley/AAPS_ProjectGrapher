@@ -44,7 +44,7 @@ docker run -d \
 docker ps
 ```
 
-OK, this needs a bit of a clean-up... To make the Neo4J DB you need Docker (go Google how to do that)
+OK, this needs a bit of a clean-up... To make the Neo4J DB you need Docker (see above)
 Assuming you have Docker setup then run
 ```bash
 python docker_neo4j_setup.py
