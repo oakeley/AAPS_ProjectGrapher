@@ -59,7 +59,7 @@ pip install networkx matplotlib plotly neo4j gitpython pandas scipy aiofiles req
 ```bash
 # Install Docker first (https://docs.docker.com/get-docker/)
 
-# Create and start Neo4j container
+# Create and start Neo4j container (might be useful to make the "8g" bigger if you can)
 docker run -d \
   --name neo4j-aaps \
   -p 7474:7474 -p 7687:7687 \
@@ -101,10 +101,9 @@ Save these enhanced scripts:
 ```bash
 # This will:
 # - Clone all 3 repositories in parallel
-# - Analyze ALL files with eating now focus
-# - Store COMPLETE source code for all files in Neo4j
-# - Generate enhanced visualizations with eating now priority
-# - Populate Neo4j database with full source code and metadata
+# - Analyze all files with eating now focus
+# - Store complete source code for all files in Neo4j
+# - Populate Neo4j with metadata
 
 # Delete the old downloads
 rm -rf aaps_en_new
