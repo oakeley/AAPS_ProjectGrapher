@@ -997,7 +997,7 @@ class EnhancedMultiRepoAnalyzer:
                 
                 # Create full-text index for source code
                 try:
-                    session.run("CREATE FULLTEXT INDEX file_source_idx IF NOT EXISTS FOR (f:File) ON f.source_code")
+                    session.run("CREATE FULLTEXT INDEX file_source_idx IF NOT EXISTS FOR (f:File) ON EACH [f.source_code]")
                     logger.info("✅ Created full-text index for source code")
                 except Exception as e:
                     logger.warning(f"Could not create full-text index: {e}")
