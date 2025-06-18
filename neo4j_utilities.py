@@ -100,116 +100,183 @@ class UltimateMultiRepoQueries:
     
     def find_most_important_files(self, repository: str = None, limit: int = 20) -> List[Dict]:
         """Find files with highest importance scores"""
-        where_clause = "WHERE f.importance_score IS NOT NULL"
         if repository and repository in self.available_repos:
-            where_clause += f" AND f.repository = '{repository}'"
-        
-        query = f"""
-        MATCH (f:File)
-        {where_clause}
-        OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
-        WHERE out.repository = f.repository
-        OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
-        WHERE in.repository = f.repository
-        WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
-        RETURN f.name as filename, 
-               f.package as package, 
-               f.repository as repository,
-               f.importance_score as importance,
-               f.complexity_score as complexity,
-               f.function_count as functions,
-               f.lines_of_code as loc,
-               f.file_type as file_type,
-               outgoing,
-               incoming,
-               (outgoing + incoming) as total_connections
-        ORDER BY f.importance_score DESC
-        LIMIT {limit}
-        """
+            query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            WHERE f.importance_score IS NOT NULL
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            RETURN f.name as filename, 
+                   f.package as package, 
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   f.complexity_score as complexity,
+                   f.function_count as functions,
+                   f.lines_of_code as loc,
+                   f.file_type as file_type,
+                   outgoing,
+                   incoming,
+                   (outgoing + incoming) as total_connections
+            ORDER BY f.importance_score DESC
+            LIMIT {limit}
+            """
+        else:
+            query = f"""
+            MATCH (f:File)
+            WHERE f.importance_score IS NOT NULL
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            RETURN f.name as filename, 
+                   f.package as package, 
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   f.complexity_score as complexity,
+                   f.function_count as functions,
+                   f.lines_of_code as loc,
+                   f.file_type as file_type,
+                   outgoing,
+                   incoming,
+                   (outgoing + incoming) as total_connections
+            ORDER BY f.importance_score DESC
+            LIMIT {limit}
+            """
         
         return self.execute_query_safe(query)
     
     def find_most_connected_files(self, repository: str = None, limit: int = 20) -> List[Dict]:
         """Find files with most connections within their repository"""
-        where_clause = ""
         if repository and repository in self.available_repos:
-            where_clause = f"WHERE f.repository = '{repository}'"
-        
-        query = f"""
-        MATCH (f:File)
-        {where_clause}
-        OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
-        WHERE out.repository = f.repository
-        OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
-        WHERE in.repository = f.repository
-        WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
-        WHERE outgoing > 0 OR incoming > 0
-        RETURN f.name as filename, 
-               f.package as package, 
-               f.repository as repository,
-               f.importance_score as importance,
-               outgoing, 
-               incoming,
-               (outgoing + incoming) as total_connections
-        ORDER BY total_connections DESC, f.importance_score DESC
-        LIMIT {limit}
-        """
+            query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            WHERE outgoing > 0 OR incoming > 0
+            RETURN f.name as filename, 
+                   f.package as package, 
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   outgoing, 
+                   incoming,
+                   (outgoing + incoming) as total_connections
+            ORDER BY total_connections DESC, f.importance_score DESC
+            LIMIT {limit}
+            """
+        else:
+            query = f"""
+            MATCH (f:File)
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            WHERE outgoing > 0 OR incoming > 0
+            RETURN f.name as filename, 
+                   f.package as package, 
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   outgoing, 
+                   incoming,
+                   (outgoing + incoming) as total_connections
+            ORDER BY total_connections DESC, f.importance_score DESC
+            LIMIT {limit}
+            """
         
         return self.execute_query_safe(query)
     
     def find_package_overview(self, repository: str = None, limit: int = 25) -> List[Dict]:
         """Get overview by package"""
-        where_clause = "WHERE f.package IS NOT NULL AND f.package <> 'unknown'"
         if repository and repository in self.available_repos:
-            where_clause += f" AND f.repository = '{repository}'"
-        
-        query = f"""
-        MATCH (f:File)
-        {where_clause}
-        WITH f.package as package, 
-             f.repository as repository,
-             count(f) as file_count,
-             sum(f.function_count) as total_functions,
-             sum(f.lines_of_code) as total_loc,
-             avg(f.importance_score) as avg_importance,
-             max(f.importance_score) as max_importance
-        WHERE file_count > 1
-        RETURN package, 
-               repository, 
-               file_count, 
-               total_functions, 
-               total_loc, 
-               round(avg_importance, 2) as avg_importance,
-               round(max_importance, 2) as max_importance
-        ORDER BY avg_importance DESC
-        LIMIT {limit}
-        """
+            query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            WHERE f.package IS NOT NULL AND f.package <> 'unknown'
+            WITH f.package as package, 
+                 f.repository as repository,
+                 count(f) as file_count,
+                 sum(f.function_count) as total_functions,
+                 sum(f.lines_of_code) as total_loc,
+                 avg(f.importance_score) as avg_importance,
+                 max(f.importance_score) as max_importance
+            WHERE file_count > 1
+            RETURN package, 
+                   repository, 
+                   file_count, 
+                   total_functions, 
+                   total_loc, 
+                   round(avg_importance, 2) as avg_importance,
+                   round(max_importance, 2) as max_importance
+            ORDER BY avg_importance DESC
+            LIMIT {limit}
+            """
+        else:
+            query = f"""
+            MATCH (f:File)
+            WHERE f.package IS NOT NULL AND f.package <> 'unknown'
+            WITH f.package as package, 
+                 f.repository as repository,
+                 count(f) as file_count,
+                 sum(f.function_count) as total_functions,
+                 sum(f.lines_of_code) as total_loc,
+                 avg(f.importance_score) as avg_importance,
+                 max(f.importance_score) as max_importance
+            WHERE file_count > 1
+            RETURN package, 
+                   repository, 
+                   file_count, 
+                   total_functions, 
+                   total_loc, 
+                   round(avg_importance, 2) as avg_importance,
+                   round(max_importance, 2) as max_importance
+            ORDER BY avg_importance DESC
+            LIMIT {limit}
+            """
         
         return self.execute_query_safe(query)
     
     def search_files_by_name(self, search_term: str, repository: str = None, limit: int = 20) -> List[Dict]:
         """Search files by name pattern"""
-        where_clause = """WHERE toLower(f.name) CONTAINS toLower($search_term)
-           OR toLower(f.package) CONTAINS toLower($search_term)
-           OR toLower(f.path) CONTAINS toLower($search_term)"""
-        
         if repository and repository in self.available_repos:
-            where_clause += f" AND f.repository = '{repository}'"
-        
-        query = f"""
-        MATCH (f:File)
-        {where_clause}
-        RETURN f.name as filename, 
-               f.package as package, 
-               f.repository as repository,
-               f.function_count as functions, 
-               f.lines_of_code as loc,
-               f.importance_score as importance,
-               f.complexity_score as complexity,
-               f.file_type as file_type
-        ORDER BY f.importance_score DESC
-        LIMIT {limit}
-        """
+            query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            WHERE toLower(f.name) CONTAINS toLower($search_term)
+               OR toLower(f.package) CONTAINS toLower($search_term)
+               OR toLower(f.path) CONTAINS toLower($search_term)
+            RETURN f.name as filename, 
+                   f.package as package, 
+                   f.repository as repository,
+                   f.function_count as functions, 
+                   f.lines_of_code as loc,
+                   f.importance_score as importance,
+                   f.complexity_score as complexity,
+                   f.file_type as file_type
+            ORDER BY f.importance_score DESC
+            LIMIT {limit}
+            """
+        else:
+            query = f"""
+            MATCH (f:File)
+            WHERE toLower(f.name) CONTAINS toLower($search_term)
+               OR toLower(f.package) CONTAINS toLower($search_term)
+               OR toLower(f.path) CONTAINS toLower($search_term)
+            RETURN f.name as filename, 
+                   f.package as package, 
+                   f.repository as repository,
+                   f.function_count as functions, 
+                   f.lines_of_code as loc,
+                   f.importance_score as importance,
+                   f.complexity_score as complexity,
+                   f.file_type as file_type
+            ORDER BY f.importance_score DESC
+            LIMIT {limit}
+            """
         
         return self.execute_query_safe(query, {'search_term': search_term})
     
@@ -263,58 +330,100 @@ class UltimateMultiRepoQueries:
         insights = {}
         
         # Entry points (files with few incoming calls but many outgoing)
-        where_filter = f"WHERE f.repository = '{repository}'" if repository else ""
-        
-        entry_points_query = f"""
-        MATCH (f:File)
-        {where_filter}
-        OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
-        WHERE out.repository = f.repository
-        OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
-        WHERE in.repository = f.repository
-        WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
-        WHERE incoming <= 1 AND outgoing >= 3
-        RETURN f.name as filename,
-               f.repository as repository,
-               f.importance_score as importance,
-               outgoing,
-               incoming
-        ORDER BY outgoing DESC, f.importance_score DESC
-        LIMIT 10
-        """
+        if repository and repository in self.available_repos:
+            entry_points_query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            WHERE incoming <= 1 AND outgoing >= 3
+            RETURN f.name as filename,
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   outgoing,
+                   incoming
+            ORDER BY outgoing DESC, f.importance_score DESC
+            LIMIT 10
+            """
+        else:
+            entry_points_query = """
+            MATCH (f:File)
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            WHERE incoming <= 1 AND outgoing >= 3
+            RETURN f.name as filename,
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   outgoing,
+                   incoming
+            ORDER BY outgoing DESC, f.importance_score DESC
+            LIMIT 10
+            """
         insights['entry_points'] = self.execute_query_safe(entry_points_query)
         
         # Core files (highly connected and important)
-        core_files_query = f"""
-        MATCH (f:File)
-        {where_filter}
-        OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
-        WHERE out.repository = f.repository
-        OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
-        WHERE in.repository = f.repository
-        WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
-        WHERE f.importance_score > 30 AND (outgoing + incoming) > 5
-        RETURN f.name as filename,
-               f.repository as repository,
-               f.importance_score as importance,
-               (outgoing + incoming) as total_connections
-        ORDER BY f.importance_score DESC, total_connections DESC
-        LIMIT 10
-        """
+        if repository and repository in self.available_repos:
+            core_files_query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            WHERE f.importance_score > 30 AND (outgoing + incoming) > 5
+            RETURN f.name as filename,
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   (outgoing + incoming) as total_connections
+            ORDER BY f.importance_score DESC, total_connections DESC
+            LIMIT 10
+            """
+        else:
+            core_files_query = """
+            MATCH (f:File)
+            OPTIONAL MATCH (f)-[out:CALLS]->(target:File)
+            WHERE out.repository = f.repository
+            OPTIONAL MATCH (source:File)-[in:CALLS]->(f)
+            WHERE in.repository = f.repository
+            WITH f, count(DISTINCT out) as outgoing, count(DISTINCT in) as incoming
+            WHERE f.importance_score > 30 AND (outgoing + incoming) > 5
+            RETURN f.name as filename,
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   (outgoing + incoming) as total_connections
+            ORDER BY f.importance_score DESC, total_connections DESC
+            LIMIT 10
+            """
         insights['core_files'] = self.execute_query_safe(core_files_query)
         
         # Isolated files (no connections)
-        isolated_query = f"""
-        MATCH (f:File)
-        {where_filter}
-        WHERE NOT (f)-[:CALLS]->() AND NOT ()-[:CALLS]->(f)
-        RETURN f.name as filename,
-               f.repository as repository,
-               f.importance_score as importance,
-               f.lines_of_code as loc
-        ORDER BY f.importance_score DESC
-        LIMIT 10
-        """
+        if repository and repository in self.available_repos:
+            isolated_query = f"""
+            MATCH (f:File {{repository: '{repository}'}})
+            WHERE NOT (f)-[:CALLS]->() AND NOT ()-[:CALLS]->(f)
+            RETURN f.name as filename,
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   f.lines_of_code as loc
+            ORDER BY f.importance_score DESC
+            LIMIT 10
+            """
+        else:
+            isolated_query = """
+            MATCH (f:File)
+            WHERE NOT (f)-[:CALLS]->() AND NOT ()-[:CALLS]->(f)
+            RETURN f.name as filename,
+                   f.repository as repository,
+                   f.importance_score as importance,
+                   f.lines_of_code as loc
+            ORDER BY f.importance_score DESC
+            LIMIT 10
+            """
         insights['isolated_files'] = self.execute_query_safe(isolated_query)
         
         return insights
@@ -727,8 +836,8 @@ def main():
         print("   📊 aaps_ultimate_database_report.json - Complete analysis report")
         
         print(f"\n💡 USAGE EXAMPLES:")
-        print("   🔍 Interactive explorer: python neo4j_utilities.py")
-        print("   🤖 RAG system: python ollama_neo4j_rag.py")
+        print("   🔍 Interactive explorer: python multi_repo_neo4j_utilities.py")
+        print("   🤖 RAG system: python ultimate_ollama_rag.py")
         
         print(f"\n🔍 EXAMPLE QUERIES:")
         print("   MATCH (r:Repository) RETURN r.name, r.file_count ORDER BY r.file_count DESC")
