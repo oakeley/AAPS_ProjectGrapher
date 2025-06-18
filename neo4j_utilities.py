@@ -836,8 +836,8 @@ def main():
         print("   📊 aaps_ultimate_database_report.json - Complete analysis report")
         
         print(f"\n💡 USAGE EXAMPLES:")
-        print("   🔍 Interactive explorer: python multi_repo_neo4j_utilities.py")
-        print("   🤖 RAG system: python ultimate_ollama_rag.py")
+        print("   🔍 Interactive explorer: python neo4j_utilities.py")
+        print("   🤖 RAG system: python ollama_neo4j_rag.py")
         
         print(f"\n🔍 EXAMPLE QUERIES:")
         print("   MATCH (r:Repository) RETURN r.name, r.file_count ORDER BY r.file_count DESC")
