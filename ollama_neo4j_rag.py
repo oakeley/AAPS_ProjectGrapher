@@ -157,11 +157,38 @@ class EnhancedNeo4jRAGRetriever:
     def __init__(self, uri: str, user: str, password: str):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
         self.available_repos = self._get_available_repositories()
+        self.fulltext_available = self._test_fulltext_availability()
         logger.info(f"Connected to enhanced Neo4j. Available repositories: {self.available_repos}")
     
     def close(self):
         self.driver.close()
     
+    def _test_fulltext_availability(self) -> bool:
+        """Test if full-text search is actually working"""
+        try:
+            with self.driver.session() as session:
+                # Test with a simple search that should return results
+                result = session.run("""
+                    CALL db.index.fulltext.queryNodes('file_source_idx', 'bolus') 
+                    YIELD node 
+                    RETURN count(node) as count
+                    LIMIT 1
+                """)
+                
+                record = result.single()
+                count = record["count"] if record else 0
+                
+                if count > 0:
+                    logger.info(f"✅ Full-text search confirmed working: {count} results for 'bolus'")
+                    return True
+                else:
+                    logger.warning("⚠️  Full-text index exists but returns no results")
+                    return False
+                    
+        except Exception as e:
+            logger.warning(f"⚠️  Full-text search test failed: {e}")
+            return False
+
     def _get_available_repositories(self) -> List[str]:
         """Get list of available repositories from the database"""
         try:
@@ -238,7 +265,7 @@ class EnhancedNeo4jRAGRetriever:
         return overview
     
     def search_eating_now_source_code(self, keywords: List[str], repository: str = None, limit: int = 12) -> List[Dict]:
-        """Enhanced search prioritizing eating now files with source code"""
+        """Enhanced search prioritizing eating now files with source code - FIXED VERSION"""
         search_terms = [term.lower() for term in keywords]
         
         # Build repository filter
@@ -246,35 +273,48 @@ class EnhancedNeo4jRAGRetriever:
         if repository and repository in self.available_repos:
             repo_filter = f"AND node.repository = '{repository}'"
         
-        # First try full-text search in source code
-        try:
-            fulltext_query = f"""
-            CALL db.index.fulltext.queryNodes('file_source_idx', $search_string) YIELD node, score
-            WHERE node.eating_now_score >= 0 {repo_filter}
-            RETURN node.name as filename,
-                   node.repository as repository,
-                   node.package as package,
-                   node.eating_now_score as eating_now_score,
-                   node.importance_score as importance,
-                   node.source_code as source_code,
-                   node.key_snippets as key_snippets,
-                   node.functions as functions,
-                   node.has_source_code as has_source,
-                   score * (1 + node.eating_now_score * 0.01) as weighted_score
-            ORDER BY weighted_score DESC, node.eating_now_score DESC
-            LIMIT {limit}
-            """
-            
-            search_string = " AND ".join(search_terms)
-            fulltext_results = self.execute_query(fulltext_query, {"search_string": search_string})
-            
-            if fulltext_results:
-                return fulltext_results
-        except:
-            pass  # Fall back to property search
+        # Try full-text search first with better error handling
+        fulltext_query = f"""
+        CALL db.index.fulltext.queryNodes('file_source_idx', $search_string) YIELD node, score
+        WHERE node.eating_now_score >= 0 {repo_filter}
+        RETURN node.name as filename,
+               node.repository as repository,
+               node.package as package,
+               node.eating_now_score as eating_now_score,
+               node.importance_score as importance,
+               node.source_code as source_code,
+               node.key_snippets as key_snippets,
+               node.functions as functions,
+               node.has_source_code as has_source,
+               score * (1 + node.eating_now_score * 0.01) as weighted_score
+        ORDER BY weighted_score DESC, node.eating_now_score DESC
+        LIMIT {limit}
+        """
         
-        # Fallback to property search when full-text search fails
-        logger.info("Full-text search not available, using property-based search")
+        # Try different search string formats
+        search_variations = [
+            " OR ".join(search_terms[:5]),      # OR search (most likely to succeed)
+            " AND ".join(search_terms[:3]),     # AND search (more restrictive)
+            search_terms[0] if search_terms else "bolus"  # Single term fallback
+        ]
+        
+        for search_string in search_variations:
+            try:
+                logger.info(f"Trying full-text search with: '{search_string}'")
+                fulltext_results = self.execute_query(fulltext_query, {"search_string": search_string})
+                
+                if fulltext_results:
+                    logger.info(f"✅ Full-text search successful: {len(fulltext_results)} results")
+                    return fulltext_results
+                else:
+                    logger.info(f"Full-text search returned no results for: '{search_string}'")
+                    
+            except Exception as e:
+                logger.warning(f"Full-text search failed for '{search_string}': {e}")
+                continue
+        
+        # Only fall back to property search if ALL full-text attempts failed
+        logger.info("Full-text search not available, using property-based search fallback")
         
         property_search = f"""
         MATCH (f:File)
@@ -298,7 +338,9 @@ class EnhancedNeo4jRAGRetriever:
         LIMIT {limit}
         """
         
-        return self.execute_query(property_search, {"search_terms": search_terms})
+        property_results = self.execute_query(property_search, {"search_terms": search_terms})
+        logger.info(f"✅ Property-based search returned: {len(property_results)} results")
+        return property_results
     
     def get_eating_now_source_code(self, filename: str, repository: str = None) -> Dict[str, Any]:
         """Get complete source code for eating now files"""
@@ -386,7 +428,7 @@ class EnhancedOllamaClient:
         self.model = model
         self.session = requests.Session()
         self.session.timeout = 10
-    
+
     def is_available(self) -> bool:
         """Check if Ollama is running and model is available"""
         try:
