@@ -53,7 +53,7 @@ source aaps_analysis/bin/activate  # On Windows: aaps_analysis\Scripts\activate
 pip install networkx matplotlib plotly neo4j gitpython pandas scipy aiofiles requests psutil
 ```
 
-### 3. Neo4j Database Setup (CRITICAL - Follow Exact Order)
+### 3. Neo4j Database Setup
 
 #### Option A: Docker Setup (Recommended)
 ```bash
@@ -74,21 +74,9 @@ docker ps
 #### Option B: Native Installation
 Download and install Neo4j from https://neo4j.com/download/
 
-#### CRITICAL: Database Setup Scripts (Run in Order), I know this is ugly but I had to hack the DB quite a lot to add new features
-
-**Step 1: Create the database container**
+#### Create the database container
 ```bash
 python docker_neo4j_setup.py
-```
-
-**Step 2: Apply quick fixes**
-```bash
-python neo4j_quick_fix.py 
-```
-
-**Step 3: Fix indexes**
-```bash
-python neo4j_index_fix.py
 ```
 
 ### 4. Ollama (Optional - for AI RAG features)
@@ -107,7 +95,7 @@ Save these enhanced scripts:
 - **`ollama_neo4j_rag.py`** - AI-powered question answering with code generation and caching
 - **`cypher_query_tool.py`** - Direct Cypher query execution tool
 
-### 2. Run the Complete Enhanced Analysis
+### 2. Run the Complete Analysis
 
 #### Step 1: Populate Database with Full Source Code Storage for RAG queries
 ```bash
@@ -128,61 +116,121 @@ python aaps_analyzer.py
 ```
 
 Expected output:
-```
+```bash
+$ python aaps_analyzer.py 
+2025-06-18 20:01:34,528 - INFO - 🚀 ENHANCED PERFORMANCE MODE!
+2025-06-18 20:01:34,528 - INFO - 💾 Total RAM: 377.2GB, Available: 365.4GB
+2025-06-18 20:01:34,528 - INFO - ⚡ CPU Cores: 48, Workers: 48
+2025-06-18 20:01:34,528 - INFO - 📦 Chunk Size: 182, Batch Size: 10000
+2025-06-18 20:01:34,528 - INFO - 🔧 Strategy: Store ALL source code for enhanced RAG performance
 🚀 AAPS ENHANCED MULTI-REPOSITORY ANALYZER
 🧠 FULL SOURCE CODE STORAGE + EATING NOW PRIORITIZATION
 💾 COMPLETE FILE INDEXING FOR MAXIMUM RAG PERFORMANCE
 ================================================================================
 🖥️  System: 377.2GB RAM, 48 CPU cores
-⚡ Configuration: 48 workers, 183 files/chunk
-💾 Memory Target: 330.4GB (87.6%)
+⚡ Configuration: 48 workers, 182 files/chunk
+💾 Memory Target: 328.9GB (87.2%)
 🧠 Storage Strategy: Full source code for ALL files
 🍽️ Enhanced Features: Eating now scoring, full source storage, enhanced indexing
 ================================================================================
-2025-06-18 18:46:44,928 - INFO - 🔄 Cloning EN_new...
-2025-06-18 18:46:44,928 - INFO - 🔄 Cloning EN_old...
-2025-06-18 18:46:44,929 - INFO - 🔄 Cloning AAPS_source...
-2025-06-18 18:46:49,801 - INFO - ✅ EN_old cloned successfully
-2025-06-18 18:47:13,625 - INFO - ✅ EN_new cloned successfully
-2025-06-18 18:47:25,264 - INFO - ✅ AAPS_source cloned successfully
-2025-06-18 18:47:25,265 - INFO - ✅ Successfully cloned 3/3 repositories
-2025-06-18 18:47:25,304 - INFO - 📁 EN_new: 3214 source files
-2025-06-18 18:47:25,345 - INFO - 📁 EN_old: 3024 source files
-2025-06-18 18:47:25,382 - INFO - 📁 AAPS_source: 3208 source files
-2025-06-18 18:47:25,382 - INFO - 🎯 Total files to process: 9446
-2025-06-18 18:47:26,578 - INFO - 🔥 Progress: 94.2% (8897/9446) | Memory: 2.9%
-2025-06-18 18:47:27,575 - INFO - 🔥 Progress: 96.1% (9080/9446) | Memory: 2.9%
-2025-06-18 18:47:27,781 - INFO - 🔥 Progress: 98.1% (9263/9446) | Memory: 3.0%
-2025-06-18 18:47:27,939 - INFO - 🔥 Progress: 100.0% (9446/9446) | Memory: 3.0%
-2025-06-18 18:47:27,967 - INFO - ✅ Enhanced analysis completed in 43.04 seconds
-2025-06-18 18:47:27,967 - INFO - 📊 Successfully processed 9446 files
-2025-06-18 18:47:27,967 - INFO - 🔗 Building function mappings and call graphs...
-2025-06-18 18:47:28,393 - INFO - 📊 EN_new call graph: 3107 nodes, 306979 edges
-2025-06-18 18:47:28,722 - INFO - 📊 EN_old call graph: 2945 nodes, 293318 edges
-2025-06-18 18:47:29,065 - INFO - 📊 AAPS_source call graph: 3101 nodes, 304461 edges
-2025-06-18 18:47:29,068 - INFO - 📈 Generating enhanced outputs...
-2025-06-18 18:47:29,068 - INFO - 📄 Generating enhanced JSON report...
-2025-06-18 18:47:29,080 - INFO - ✅ Saved: aaps_enhanced_analysis.json
-2025-06-18 18:47:29,080 - INFO - 📊 Source code stored for 9445 files
-2025-06-18 18:47:29,080 - INFO - 🗄️ Populating Neo4j with enhanced approach...
-2025-06-18 18:47:30,576 - INFO - 📊 Neo4j: Processed 9446 files...
-2025-06-18 19:23:46,399 - INFO - ✅ Enhanced Neo4j populated: 9446 files, 9445 with source code, 949666 relationships
-2025-06-18 19:23:46,400 - INFO - 📊 Generating eating now visualizations...
-2025-06-18 19:23:46,496 - INFO - ✅ Created: aaps_enhanced_overview.html
-2025-06-18 19:23:46,529 - INFO - ✅ Created: aaps_enhanced_eating_now.html
-2025-06-18 19:23:46,529 - INFO - 🎉 Enhanced outputs generated!
+2025-06-18 20:01:34,547 - INFO - 🚀 STARTING ENHANCED ANALYSIS WITH FULL SOURCE CODE STORAGE
+2025-06-18 20:01:34,547 - INFO - 💪 Storing ALL source code for maximum RAG performance
+2025-06-18 20:01:34,547 - INFO - 🧠 Enhanced eating now scoring and complete file indexing
+2025-06-18 20:01:34,547 - INFO - 🚀 Cloning all repositories in parallel...
+2025-06-18 20:01:34,547 - INFO - 🔄 Cloning EN_new...
+2025-06-18 20:01:34,548 - INFO - 🔄 Cloning EN_old...
+2025-06-18 20:01:34,548 - INFO - 🔄 Cloning AAPS_source...
+2025-06-18 20:01:56,010 - INFO - ✅ EN_old cloned successfully
+2025-06-18 20:02:03,145 - INFO - ✅ EN_new cloned successfully
+2025-06-18 20:02:17,177 - INFO - ✅ AAPS_source cloned successfully
+2025-06-18 20:02:17,178 - INFO - ✅ Successfully cloned 3/3 repositories
+2025-06-18 20:02:17,219 - INFO - 📁 EN_new: 3214 source files
+2025-06-18 20:02:17,259 - INFO - 📁 EN_old: 3024 source files
+2025-06-18 20:02:17,295 - INFO - 📁 AAPS_source: 3208 source files
+2025-06-18 20:02:17,295 - INFO - 🎯 Total files to process: 9446
+2025-06-18 20:02:17,295 - INFO - 🔥 Processing with enhanced method + full source code storage...
+2025-06-18 20:02:17,475 - INFO - 🔥 Progress: 1.9% (182/9446) | Memory: 3.2%
+2025-06-18 20:02:17,507 - INFO - 🔥 Progress: 3.9% (364/9446) | Memory: 3.2%
+2025-06-18 20:02:17,513 - INFO - 🔥 Progress: 5.8% (546/9446) | Memory: 3.2%
+2025-06-18 20:02:17,538 - INFO - 🔥 Progress: 7.7% (728/9446) | Memory: 3.2%
+2025-06-18 20:02:17,544 - INFO - 🔥 Progress: 9.6% (910/9446) | Memory: 3.2%
+2025-06-18 20:02:17,574 - INFO - 🔥 Progress: 11.6% (1092/9446) | Memory: 3.2%
+2025-06-18 20:02:17,604 - INFO - 🔥 Progress: 13.5% (1274/9446) | Memory: 3.2%
+2025-06-18 20:02:17,607 - INFO - 🔥 Progress: 15.4% (1456/9446) | Memory: 3.2%
+2025-06-18 20:02:17,618 - INFO - 🔥 Progress: 17.3% (1638/9446) | Memory: 3.2%
+2025-06-18 20:02:17,655 - INFO - 🔥 Progress: 19.3% (1820/9446) | Memory: 3.2%
+2025-06-18 20:02:17,660 - INFO - 🔥 Progress: 21.2% (2002/9446) | Memory: 3.2%
+2025-06-18 20:02:17,666 - INFO - 🔥 Progress: 23.1% (2184/9446) | Memory: 3.2%
+2025-06-18 20:02:17,673 - INFO - 🔥 Progress: 25.0% (2366/9446) | Memory: 3.2%
+2025-06-18 20:02:17,678 - INFO - 🔥 Progress: 27.0% (2548/9446) | Memory: 3.2%
+2025-06-18 20:02:17,701 - INFO - 🔥 Progress: 28.9% (2730/9446) | Memory: 3.2%
+2025-06-18 20:02:17,729 - INFO - 🔥 Progress: 30.8% (2912/9446) | Memory: 3.2%
+2025-06-18 20:02:17,741 - INFO - 🔥 Progress: 32.8% (3094/9446) | Memory: 3.2%
+2025-06-18 20:02:17,751 - INFO - 🔥 Progress: 34.7% (3276/9446) | Memory: 3.2%
+2025-06-18 20:02:17,768 - INFO - 🔥 Progress: 36.6% (3458/9446) | Memory: 3.2%
+2025-06-18 20:02:17,773 - INFO - 🔥 Progress: 38.5% (3640/9446) | Memory: 3.2%
+2025-06-18 20:02:17,813 - INFO - 🔥 Progress: 40.5% (3822/9446) | Memory: 3.3%
+2025-06-18 20:02:17,824 - INFO - 🔥 Progress: 42.4% (4004/9446) | Memory: 3.3%
+2025-06-18 20:02:17,829 - INFO - 🔥 Progress: 44.3% (4186/9446) | Memory: 3.3%
+2025-06-18 20:02:17,833 - INFO - 🔥 Progress: 46.2% (4368/9446) | Memory: 3.3%
+2025-06-18 20:02:17,838 - INFO - 🔥 Progress: 48.2% (4550/9446) | Memory: 3.3%
+2025-06-18 20:02:17,842 - INFO - 🔥 Progress: 50.1% (4732/9446) | Memory: 3.3%
+2025-06-18 20:02:17,852 - INFO - 🔥 Progress: 52.0% (4914/9446) | Memory: 3.3%
+2025-06-18 20:02:17,856 - INFO - 🔥 Progress: 53.9% (5096/9446) | Memory: 3.3%
+2025-06-18 20:02:17,860 - INFO - 🔥 Progress: 55.9% (5278/9446) | Memory: 3.3%
+2025-06-18 20:02:17,865 - INFO - 🔥 Progress: 57.8% (5460/9446) | Memory: 3.3%
+2025-06-18 20:02:17,872 - INFO - 🔥 Progress: 59.7% (5642/9446) | Memory: 3.3%
+2025-06-18 20:02:17,880 - INFO - 🔥 Progress: 61.7% (5824/9446) | Memory: 3.3%
+2025-06-18 20:02:17,888 - INFO - 🔥 Progress: 63.6% (6006/9446) | Memory: 3.3%
+2025-06-18 20:02:17,892 - INFO - 🔥 Progress: 65.5% (6188/9446) | Memory: 3.3%
+2025-06-18 20:02:17,922 - INFO - 🔥 Progress: 67.4% (6370/9446) | Memory: 3.3%
+2025-06-18 20:02:17,944 - INFO - 🔥 Progress: 69.4% (6552/9446) | Memory: 3.3%
+2025-06-18 20:02:17,949 - INFO - 🔥 Progress: 71.3% (6734/9446) | Memory: 3.3%
+2025-06-18 20:02:17,957 - INFO - 🔥 Progress: 73.2% (6916/9446) | Memory: 3.3%
+2025-06-18 20:02:17,972 - INFO - 🔥 Progress: 75.1% (7098/9446) | Memory: 3.3%
+2025-06-18 20:02:17,975 - INFO - 🔥 Progress: 77.1% (7280/9446) | Memory: 3.3%
+2025-06-18 20:02:17,990 - INFO - 🔥 Progress: 79.0% (7462/9446) | Memory: 3.3%
+2025-06-18 20:02:17,997 - INFO - 🔥 Progress: 80.7% (7626/9446) | Memory: 3.3%
+2025-06-18 20:02:18,009 - INFO - 🔥 Progress: 82.7% (7808/9446) | Memory: 3.3%
+2025-06-18 20:02:18,120 - INFO - 🔥 Progress: 84.6% (7990/9446) | Memory: 3.3%
+2025-06-18 20:02:18,173 - INFO - 🔥 Progress: 86.5% (8172/9446) | Memory: 3.3%
+2025-06-18 20:02:18,236 - INFO - 🔥 Progress: 88.4% (8354/9446) | Memory: 3.4%
+2025-06-18 20:02:18,307 - INFO - 🔥 Progress: 90.4% (8536/9446) | Memory: 3.4%
+2025-06-18 20:02:18,315 - INFO - 🔥 Progress: 92.3% (8718/9446) | Memory: 3.4%
+2025-06-18 20:02:18,436 - INFO - 🔥 Progress: 94.2% (8900/9446) | Memory: 3.4%
+2025-06-18 20:02:19,485 - INFO - 🔥 Progress: 96.1% (9082/9446) | Memory: 3.4%
+2025-06-18 20:02:19,829 - INFO - 🔥 Progress: 98.1% (9264/9446) | Memory: 3.4%
+2025-06-18 20:02:19,897 - INFO - 🔥 Progress: 100.0% (9446/9446) | Memory: 3.4%
+2025-06-18 20:02:19,926 - INFO - ✅ Enhanced analysis completed in 45.38 seconds
+2025-06-18 20:02:19,926 - INFO - 📊 Successfully processed 9446 files
+2025-06-18 20:02:19,926 - INFO - 🔗 Building function mappings and call graphs...
+2025-06-18 20:02:20,358 - INFO - 📊 EN_new call graph: 3107 nodes, 306979 edges
+2025-06-18 20:02:20,693 - INFO - 📊 EN_old call graph: 2945 nodes, 293318 edges
+2025-06-18 20:02:21,044 - INFO - 📊 AAPS_source call graph: 3101 nodes, 304461 edges
+2025-06-18 20:02:21,047 - INFO - 📈 Generating enhanced outputs...
+2025-06-18 20:02:21,047 - INFO - 📄 Generating enhanced JSON report...
+2025-06-18 20:02:21,059 - INFO - ✅ Saved: aaps_enhanced_analysis.json
+2025-06-18 20:02:21,059 - INFO - 📊 Source code stored for 9445 files
+2025-06-18 20:02:21,059 - INFO - 🗄️ Populating Neo4j with enhanced approach...
+2025-06-18 20:02:22,702 - INFO - 📊 Neo4j: Processed 9446 files...
+2025-06-18 20:02:46,486 - INFO - ✅ Created full-text index for source code
+2025-06-18 20:02:46,553 - INFO - ✅ Enhanced Neo4j populated: 9446 files, 9445 with source code, 949666 relationships
+2025-06-18 20:02:46,553 - INFO - 📊 Generating eating now visualizations...
+2025-06-18 20:02:46,656 - INFO - ✅ Created: aaps_enhanced_overview.html
+2025-06-18 20:02:46,691 - INFO - ✅ Created: aaps_enhanced_eating_now.html
+2025-06-18 20:02:46,691 - INFO - 🎉 Enhanced outputs generated!
 
 ================================================================================
 🎉 ENHANCED ANALYSIS COMPLETE!
 🧠 FULL SOURCE CODE STORAGE + EATING NOW PRIORITIZATION
 ================================================================================
-⏱️  Total Time: 2221.60 seconds (37.0 minutes)
-💾 RAM Used: 377.2GB total, 367.1GB available
+⏱️  Total Time: 72.15 seconds (1.2 minutes)
+💾 RAM Used: 377.2GB total, 365.4GB available
 ⚡ CPU Cores: 48, Workers: 48
 📊 Files Processed: 9,446
 🍽️ Eating Now Relevant Files: 7,160
 💾 Files with Source Code Stored: 9,445
-🚀 Processing Speed: 4.3 files/second
+🚀 Processing Speed: 130.9 files/second
 🧠 Storage Strategy: Full source code for ALL files
 
 📚 REPOSITORY BREAKDOWN (EATING NOW FOCUSED):
@@ -279,32 +327,14 @@ Expected output:
 ================================================================================
 ```
 
-#### Step 2: Fix Database Indexes Again (sorry)
-```bash
-# Run the index fix to optimize database performance
-python neo4j_index_fix.py
-```
-
-Expected output:
-```
-🔧 Neo4j Index Fix Script
-✅ Connected to Neo4j
-📊 Database verification:
-   Total files: 9,446
-   Files with source code: 9,445
-   Critical eating now files: 7,117
-✅ Property-based search working: 1,234 results for 'bolus'
-🎉 Index fix completed!
-```
-
-#### Step 3: Explore the Enhanced Database
+#### Step 2: Explore the Database
 
 **Interactive Explorer (Eating Now Focused):**
 ```bash
 python neo4j_utilities.py
 ```
 
-Enhanced commands available:
+Commands available:
 ```bash
 🔍 Enhanced Explorer> eating EN_new    # Top eating now files in EN_new
 🔍 Enhanced Explorer> source BolusCalculatorPlugin.kt  # Show complete source code
@@ -314,7 +344,7 @@ Enhanced commands available:
 🔍 Enhanced Explorer> overview        # Database overview with eating now metrics
 ```
 
-**Direct Cypher Query Tool (NEW):**
+**Direct Cypher Query Tool:**
 ```bash
 python cypher_query_tool.py
 ```
@@ -333,9 +363,9 @@ cypher> examples # Show example queries
 cypher> schema   # Show database schema
 ```
 
-#### Step 4: Enhanced AI-Powered Analysis with Code Generation
+#### Step 4: AI-Powered Analysis with Code Generation
 ```bash
-# Start the enhanced RAG system with automatic code caching
+# Start the RAG system with automatic code caching
 python ollama_neo4j_rag.py
 ```
 
@@ -348,7 +378,7 @@ New capabilities:
 🍽️ Ask about AAPS eating now: cache  # See generated code from this session
 ```
 
-## 📊 What You'll Get (ENHANCED)
+## 📊 What You'll Get
 
 ### 🌐 Interactive Visualizations
 1. **`aaps_enhanced_overview.html`** - Multi-repository overview with eating now metrics and source code indicators
