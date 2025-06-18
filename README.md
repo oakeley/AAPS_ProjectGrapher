@@ -11,7 +11,7 @@ python -m venv aaps_analysis
 source aaps_analysis/bin/activate  # On Windows: aaps_analysis\Scripts\activate
 
 # Install required packages
-pip install networkx matplotlib plotly neo4j gitpython pandas scipy aiofiles requests
+pip install networkx matplotlib plotly neo4j gitpython pandas scipy aiofiles requests psutil
 ```
 
 ### 2. Neo4j Database
